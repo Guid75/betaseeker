@@ -13,8 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    seeker.cpp \
+    tvshow.cpp \
+    showlistmodel.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    seeker.h \
+    tvshow.h \
+    showlistmodel.h
 
 FORMS    += mainwindow.ui

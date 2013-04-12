@@ -15,18 +15,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLineEdit" name="lineEditSearch"/>
-    </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="comboBoxLang"/>
-    </item>
-    <item row="0" column="3">
-     <widget class="QComboBox" name="comboBoxEpisode"/>
-    </item>
-    <item row="0" column="2">
-     <widget class="QComboBox" name="comboBoxSeason"/>
-    </item>
     <item row="1" column="0" colspan="4">
      <widget class="QTabWidget" name="tabWidgetMain">
       <property name="currentIndex">
@@ -38,6 +26,9 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
+         <widget class="QLineEdit" name="lineEditSearch"/>
+        </item>
+        <item row="1" column="0">
          <widget class="QListWidget" name="listWidgetSearch"/>
         </item>
        </layout>
@@ -46,26 +37,26 @@
        <attribute name="title">
         <string>Shows</string>
        </attribute>
-       <widget class="QListView" name="listViewShows">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>161</width>
-          <height>291</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QTreeView" name="treeViewSubtitles">
-        <property name="geometry">
-         <rect>
-          <x>180</x>
-          <y>10</y>
-          <width>421</width>
-          <height>291</height>
-         </rect>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLineEdit" name="lineEditFilter"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QComboBox" name="comboBoxLang"/>
+        </item>
+        <item row="0" column="3">
+         <widget class="QComboBox" name="comboBoxSeason"/>
+        </item>
+        <item row="0" column="4">
+         <widget class="QComboBox" name="comboBoxEpisode"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QListView" name="listViewShows"/>
+        </item>
+        <item row="1" column="1" colspan="4">
+         <widget class="QTreeView" name="treeViewSubtitles"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -90,7 +81,6 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionApp_key"/>
    </widget>
    <addaction name="menuShow"/>
    <addaction name="menuSettings"/>
