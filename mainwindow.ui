@@ -39,9 +39,12 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
-         <widget class="QSplitter" name="splitter">
+         <widget class="QSplitter" name="splitterMain">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
           </property>
           <widget class="QListView" name="listViewShows">
            <property name="sizePolicy">
@@ -50,8 +53,14 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
           </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
              <widget class="QComboBox" name="comboBoxLang"/>
@@ -119,5 +128,22 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>215</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

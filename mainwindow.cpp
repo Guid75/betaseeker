@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	searchTimerId(0)
 {
 	ui->setupUi(this);
+    ui->splitterMain->setSizes(QList<int>() << 75);
 
 	showListModel = new ShowListModel(this);
 	ui->listViewShows->setModel(showListModel);

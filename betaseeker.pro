@@ -16,11 +16,13 @@ SOURCES += main.cpp\
     mainwindow.cpp \
     showlistmodel.cpp \
     showmanager.cpp \
-    show.cpp
+    show.cpp \
+    requestmanager.cpp
 
 HEADERS  += mainwindow.h \
     showlistmodel.h \
     showmanager.h \
-    show.h
+    show.h \
+    requestmanager.h
 
 FORMS    += mainwindow.ui
