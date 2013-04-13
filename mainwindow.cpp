@@ -4,6 +4,8 @@
 #include <QSettings>
 #include <QTimer>
 
+#include "showmanager.h"
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -42,7 +44,7 @@ void MainWindow::loadSettings()
 	QStringList shows = settings.childGroups();
 	foreach (const QString &showUrl, settings.childGroups()) {
 		settings.beginGroup(showUrl);
-		showListModel->addShow(settings.value("title").toString(), showUrl);
+        ShowManager::instance().addShow(settings.value("title").toString(), showUrl);
 		settings.endGroup();
 	}
 
@@ -93,7 +95,7 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	if (!item)
 		return;
 
-	showListModel->addShow(item->text(), item->data(Qt::UserRole).toString());
+    ShowManager::instance().addShow(item->text(), item->data(Qt::UserRole).toString());
 	ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
 }
 

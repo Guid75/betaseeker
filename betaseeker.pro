@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     tvshow.cpp \
-    showlistmodel.cpp
+    showlistmodel.cpp \
+    showmanager.cpp
 
 HEADERS  += mainwindow.h \
     tvshow.h \
-    showlistmodel.h
+    showlistmodel.h \
+    showmanager.h
 
 FORMS    += mainwindow.ui

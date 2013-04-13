@@ -1,18 +1,21 @@
 #include "showlistmodel.h"
+#include "showmanager.h"
 
 ShowListModel::ShowListModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    connect(&ShowManager::instance(), SIGNAL(showAdded(TvShow)),
+            this, SLOT(showAdded(TvShow)));
 }
 
-int ShowListModel::rowCount(const QModelIndex & parent) const
+int ShowListModel::rowCount(const QModelIndex &) const
 {
-	return _shows.count();
+    return ShowManager::instance().showsCount();
 }
 
 QVariant ShowListModel::data(const QModelIndex & index, int role) const
 {
-	const TvShow &show = _shows[index.row()];
+    const TvShow &show = ShowManager::instance().showAt(index.row());
 	switch (role) {
 	case Qt::DisplayRole:
 		return show.title();
@@ -20,22 +23,8 @@ QVariant ShowListModel::data(const QModelIndex & index, int role) const
 	return QVariant();
 }
 
-void ShowListModel::addShow(const QString &title, const QString &url)
+void ShowListModel::showAdded(const TvShow &show)
 {
-	if (indexOfShow(url) >= 0)
-		return;
-
-	beginInsertRows(QModelIndex(), _shows.count(), _shows.count());
-	_shows << TvShow(title, url);
-	endInsertRows();
-}
-
-int ShowListModel::indexOfShow(const QString &url)	const
-{
-	for (int i = 0; i < _shows.count(); i++) {
-		const TvShow &show = _shows[i];
-		if (show.url() == url)
-			return i;
-	}
-	return -1;
+    beginInsertRows(QModelIndex(), ShowManager::instance().showsCount() - 1, ShowManager::instance().showsCount() - 1);
+    endInsertRows();
 }
