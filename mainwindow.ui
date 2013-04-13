@@ -18,7 +18,7 @@
     <item row="1" column="0" colspan="4">
      <widget class="QTabWidget" name="tabWidgetMain">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabSearch">
        <attribute name="title">
@@ -37,24 +37,44 @@
        <attribute name="title">
         <string>Shows</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0" colspan="2">
-         <widget class="QLineEdit" name="lineEditFilter"/>
-        </item>
-        <item row="0" column="2">
-         <widget class="QComboBox" name="comboBoxLang"/>
-        </item>
-        <item row="0" column="3">
-         <widget class="QComboBox" name="comboBoxSeason"/>
-        </item>
-        <item row="0" column="4">
-         <widget class="QComboBox" name="comboBoxEpisode"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QListView" name="listViewShows"/>
-        </item>
-        <item row="1" column="1" colspan="4">
-         <widget class="QTreeView" name="treeViewSubtitles"/>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QListView" name="listViewShows">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+          <widget class="QWidget" name="">
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <widget class="QComboBox" name="comboBoxLang"/>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboBoxSeason"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QComboBox" name="comboBoxEpisode"/>
+            </item>
+            <item row="1" column="0" colspan="3">
+             <widget class="QTreeView" name="treeViewSubtitles">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -68,7 +88,7 @@
      <x>0</x>
      <y>0</y>
      <width>635</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuShow">

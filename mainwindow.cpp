@@ -176,8 +176,6 @@ void MainWindow::parseSearchResult(const QJsonObject &rootObj)
 		QListWidgetItem *item = new QListWidgetItem(title);
 		item->setData(Qt::UserRole, url);
 		ui->listWidgetSearch->addItem(item);
-
-		qDebug("%s:%s", qPrintable(title), qPrintable(url));
 	}
 }
 

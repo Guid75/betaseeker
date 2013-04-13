@@ -14,12 +14,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    seeker.cpp \
     tvshow.cpp \
     showlistmodel.cpp
 
 HEADERS  += mainwindow.h \
-    seeker.h \
     tvshow.h \
     showlistmodel.h
 
