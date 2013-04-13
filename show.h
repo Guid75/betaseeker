@@ -3,10 +3,15 @@
 
 #include <QString>
 
-class TvShow
+class Show
 {
 public:
-	TvShow(const QString &title, const QString &url);
+    enum ShowItemType {
+        Item_Resume,
+        Item_Subtitles
+    };
+
+    Show(const QString &title, const QString &url);
 
 	const QString title() const { return _title; }
 	const QString url() const { return _url; }

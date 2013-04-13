@@ -4,8 +4,8 @@
 ShowListModel::ShowListModel(QObject *parent) :
     QAbstractListModel(parent)
 {
-    connect(&ShowManager::instance(), SIGNAL(showAdded(TvShow)),
-            this, SLOT(showAdded(TvShow)));
+    connect(&ShowManager::instance(), SIGNAL(showAdded(Show)),
+            this, SLOT(showAdded(Show)));
 }
 
 int ShowListModel::rowCount(const QModelIndex &) const
@@ -15,7 +15,7 @@ int ShowListModel::rowCount(const QModelIndex &) const
 
 QVariant ShowListModel::data(const QModelIndex & index, int role) const
 {
-    const TvShow &show = ShowManager::instance().showAt(index.row());
+    const Show &show = ShowManager::instance().showAt(index.row());
 	switch (role) {
 	case Qt::DisplayRole:
 		return show.title();
@@ -23,7 +23,7 @@ QVariant ShowListModel::data(const QModelIndex & index, int role) const
 	return QVariant();
 }
 
-void ShowListModel::showAdded(const TvShow &show)
+void ShowListModel::showAdded(const Show &show)
 {
     beginInsertRows(QModelIndex(), ShowManager::instance().showsCount() - 1, ShowManager::instance().showsCount() - 1);
     endInsertRows();

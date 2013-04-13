@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 
-#include "tvshow.h"
+#include "show.h"
 
 class ShowListModel : public QAbstractListModel
 {
@@ -19,7 +19,7 @@ signals:
 public slots:
 
 private slots:
-    void showAdded(const TvShow &show);
+    void showAdded(const Show &show);
 };
 
 #endif // SHOWLISTMODEL_H

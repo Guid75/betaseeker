@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "tvshow.h"
+#include "show.h"
 
 class ShowManager : public QObject
 {
@@ -12,18 +12,18 @@ public:
     static ShowManager &instance();
 
     int showsCount() const { return _shows.count(); }
-    const TvShow &showAt(int index) const;
+    const Show &showAt(int index) const;
     void addShow(const QString &title, const QString &url);
     int indexOfShow(const QString &url) const;
 
 signals:
-    void showAdded(const TvShow &show);
+    void showAdded(const Show &show);
 
 public slots:
     
 private:
     static ShowManager *_instance;
-    QList<TvShow> _shows;
+    QList<Show> _shows;
 
     explicit ShowManager();
 
