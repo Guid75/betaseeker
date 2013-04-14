@@ -3,9 +3,6 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QUrl>
 
 #include "showlistmodel.h"
 
@@ -27,24 +24,19 @@ protected:
 private slots:
 	void on_lineEditSearch_textChanged(const QString &text);
 	void on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item);
-	void httpFinished();
-	void httpReadyRead();
-	void httpError(QNetworkReply::NetworkError);
-	void displayApiKeyDialog();
+
+    void requestFinished(int ticketId, const QByteArray &response);
+    void currentShowChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
 	Ui::MainWindow *ui;
+    int searchTicketId;
 	int searchTimerId;
-	QNetworkAccessManager network;
-	QUrl url;
-	QNetworkReply *reply;
 	ShowListModel *showListModel;
 
 	void loadSettings();
 	void saveSettings();
-	//QString forgeRequest() const;
-	void startRequest(QUrl url);
-	void parseSearchResult(const QJsonObject &rootObj);
+    void parseSearchResult(const QByteArray &response);
 };
 
 #endif // MAINWINDOW_H

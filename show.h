@@ -6,8 +6,8 @@
 class Show
 {
 public:
-    enum ShowItemType {
-        Item_Resume,
+    enum ShowItem {
+        Item_Episodes,
         Item_Subtitles
     };
 

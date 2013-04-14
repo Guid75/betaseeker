@@ -5,6 +5,8 @@
 #include <QTimer>
 
 #include "showmanager.h"
+#include "requestmanager.h"
+#include "jsonparser.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -27,6 +29,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->tabWidgetMain->setCurrentWidget(ui->tabSearch);
 	ui->lineEditSearch->setFocus();
+
+    connect(ui->listViewShows->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(currentShowChanged(QItemSelection,QItemSelection)));
+
+    connect(&RequestManager::instance(), SIGNAL(requestFinished(int,QByteArray)),
+            this, SLOT(requestFinished(int,QByteArray)));
 }
 
 MainWindow::~MainWindow()
@@ -73,11 +81,15 @@ void MainWindow::saveSettings()
 void MainWindow::timerEvent(QTimerEvent *event)
 {
 	QString value = ui->lineEditSearch->text();
-	qDebug("Launch search on %s", qPrintable(value));
-	url = QString("%1/shows/search.json?title=%2&key=%3").arg(websiteUrl).arg(value).arg(apiKey);
-	startRequest(url);
+    if (value.isEmpty())
+        return;
+    searchTicketId = RequestManager::instance().showsSearch(value);
 	killTimer(event->timerId());
 	searchTimerId = 0;
+
+    if (searchTicketId == -1) {
+        // TODO: manage overflow tickets
+    }
 }
 
 void MainWindow::on_lineEditSearch_textChanged(const QString &text)
@@ -98,91 +110,62 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 
     ShowManager::instance().addShow(item->text(), item->data(Qt::UserRole).toString());
 	ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
+    ui->listViewShows->selectionModel()->select(showListModel->index(ShowManager::instance().showsCount() - 1, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Clear);
 }
 
-void MainWindow::startRequest(QUrl url)
+void MainWindow::requestFinished(int ticketId, const QByteArray &response)
 {
-	QNetworkRequest request(url);
-	request.setHeader(QNetworkRequest::UserAgentHeader, "betaseeker v" + QCoreApplication::instance()->applicationVersion());
-	reply = network.get(request);
-	connect(reply, SIGNAL(finished()),
-			this, SLOT(httpFinished()));
-	connect(reply, SIGNAL(readyRead()),
-			this, SLOT(httpReadyRead()));
-	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
-			this, SLOT(httpError(QNetworkReply::NetworkError)));
-/*	connect(reply, SIGNAL(downloadProgress(qint64,qint64)),
-			this, SLOT(updateDataReadProgress(qint64,qint64)));*/
+    if (ticketId == searchTicketId)
+        parseSearchResult(response);
 }
 
-void MainWindow::httpError(QNetworkReply::NetworkError)
+void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-	qDebug("error: %s", qPrintable(reply->errorString()));
+    if (selected.count() == 0)
+        return;
+
+    int showIndex = selected.indexes()[0].row();
+    const Show &show = ShowManager::instance().showAt(showIndex);
+
+    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
 }
 
-void MainWindow::httpFinished()
+void MainWindow::parseSearchResult(const QByteArray &response)
 {
-	reply->deleteLater();
-}
+    JsonParser parser(response);
 
-void MainWindow::httpReadyRead()
-{
-	QByteArray response = reply->readAll();
-	QJsonParseError error;
-	QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
-	if (jsonDoc.isNull()) {
-		qDebug("error while parsing json");
-		qDebug("%s: %d", qPrintable(error.errorString()), error.offset);
-		return;
-	}
+    if (!parser.isValid()) {
+        // TODO manage error
+        return;
+    }
 
-	if (!jsonDoc.isObject()) {
-		// TODO raise error, we except an object
-		return;
-	}
+    ui->listWidgetSearch->clear();
 
-	QJsonObject obj = jsonDoc.object();
-	QJsonValue val = obj.value("root");
-	parseSearchResult(val.toObject());
-}
+    QJsonObject shows = parser.root().value("shows").toObject();
+    if (shows.isEmpty()) {
+        // TODO manage error
+        return;
+    }
 
-void MainWindow::parseSearchResult(const QJsonObject &rootObj)
-{
-	ui->listWidgetSearch->clear();
+    foreach (const QString &key, shows.keys()) {
+        QJsonObject show = shows.value(key).toObject();
+        if (show.isEmpty()) {
+            // TODO manage error
+            continue;
+        }
 
-	QJsonValue val = rootObj.value("shows");
-	if (!val.isObject()) {
-		// TODO manage error
-		return;
-	}
-
-	QJsonObject shows = val.toObject();
-	foreach (const QString &key, shows.keys()) {
-		val = shows.value(key);
-		if (!val.isObject()) {
-			// TODO manage error
-			continue;
-		}
-		QJsonObject show = val.toObject();
-		val = show.value("title");
-		if (!val.isString()) {
-			// TODO manage error
-			continue;
-		}
-		QString title = val.toString();
-		val = show.value("url");
-		if (!val.isString()) {
-			// TODO manage error
-			continue;
-		}
-		QString url = val.toString();
-		QListWidgetItem *item = new QListWidgetItem(title);
-		item->setData(Qt::UserRole, url);
-		ui->listWidgetSearch->addItem(item);
-	}
-}
-
-void MainWindow::displayApiKeyDialog()
-{
-
+        QString title = show.value("title").toString();
+        if (title.isNull()) {
+            // TODO manage error
+            continue;
+        }
+        QString url = show.value("url").toString();
+        if (url.isNull()) {
+            // TODO manage error
+            continue;
+        }
+        QListWidgetItem *item = new QListWidgetItem(title);
+        item->setData(Qt::UserRole, url);
+        ui->listWidgetSearch->addItem(item);
+    }
 }

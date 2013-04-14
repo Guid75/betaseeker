@@ -16,6 +16,8 @@ public:
     void addShow(const QString &title, const QString &url);
     int indexOfShow(const QString &url) const;
 
+    void refresh(const QString &url, Show::ShowItem item);
+
 signals:
     void showAdded(const Show &show);
 
@@ -27,6 +29,8 @@ private:
 
     explicit ShowManager();
 
+private slots:
+    void requestFinished(int ticketId, const QByteArray &response);
 };
 
 #endif // SHOWMANAGER_H

@@ -17,12 +17,14 @@ SOURCES += main.cpp\
     showlistmodel.cpp \
     showmanager.cpp \
     show.cpp \
-    requestmanager.cpp
+    requestmanager.cpp \
+    jsonparser.cpp
 
 HEADERS  += mainwindow.h \
     showlistmodel.h \
     showmanager.h \
     show.h \
-    requestmanager.h
+    requestmanager.h \
+    jsonparser.h
 
 FORMS    += mainwindow.ui

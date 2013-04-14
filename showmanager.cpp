@@ -1,4 +1,5 @@
 #include "show.h"
+#include "requestmanager.h"
 #include "showmanager.h"
 
 ShowManager *ShowManager::_instance = 0;
@@ -14,6 +15,13 @@ ShowManager &ShowManager::instance()
 ShowManager::ShowManager() :
     QObject()
 {
+    connect(&RequestManager::instance(), SIGNAL(requestFinished(int,QByteArray)),
+            this, SLOT(requestFinished(int,QByteArray)));
+}
+
+void ShowManager::requestFinished(int ticketId, const QByteArray &response)
+{
+// TODO
 }
 
 const Show &ShowManager::showAt(int index) const
@@ -29,6 +37,21 @@ int ShowManager::indexOfShow(const QString &url) const
             return i;
     }
     return -1;
+}
+
+void ShowManager::refresh(const QString &url, Show::ShowItem item)
+{
+    int index = indexOfShow(url);
+    if (index < 0)
+        return;
+    const Show &show = showAt(index);
+    switch (item) {
+    case Show::Item_Episodes:
+        RequestManager::instance().showsEpisodes(show.url());
+        break;
+    default:
+        break;
+    }
 }
 
 void ShowManager::addShow(const QString &title, const QString &url)
