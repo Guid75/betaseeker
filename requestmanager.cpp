@@ -107,6 +107,7 @@ void RequestManager::httpFinished()
     currentRequests.removeAt(index);
 
     reply->deleteLater();
+    animate();
 }
 
 Request RequestManager::getRequest(QNetworkReply *reply, int *index)
