@@ -26,7 +26,7 @@ private slots:
 	void on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item);
 
     void requestFinished(int ticketId, const QByteArray &response);
-    void currentShowChanged(const QItemSelection &selected, const QItemSelection &deselected);
+	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
 
 private:
 	Ui::MainWindow *ui;

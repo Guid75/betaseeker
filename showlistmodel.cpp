@@ -23,7 +23,7 @@ QVariant ShowListModel::data(const QModelIndex & index, int role) const
 	return QVariant();
 }
 
-void ShowListModel::showAdded(const Show &show)
+void ShowListModel::showAdded(const Show &)
 {
     beginInsertRows(QModelIndex(), ShowManager::instance().showsCount() - 1, ShowManager::instance().showsCount() - 1);
     endInsertRows();

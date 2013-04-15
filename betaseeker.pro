@@ -18,13 +18,17 @@ SOURCES += main.cpp\
     showmanager.cpp \
     show.cpp \
     requestmanager.cpp \
-    jsonparser.cpp
+    jsonparser.cpp \
+    season.cpp \
+    episode.cpp
 
 HEADERS  += mainwindow.h \
     showlistmodel.h \
     showmanager.h \
     show.h \
     requestmanager.h \
-    jsonparser.h
+    jsonparser.h \
+    season.h \
+    episode.h
 
 FORMS    += mainwindow.ui

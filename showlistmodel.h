@@ -19,7 +19,7 @@ signals:
 public slots:
 
 private slots:
-    void showAdded(const Show &show);
+	void showAdded(const Show &);
 };
 
 #endif // SHOWLISTMODEL_H

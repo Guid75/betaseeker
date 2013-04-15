@@ -5,3 +5,8 @@ Show::Show(const QString &title, const QString &url) :
 	_url(url)
 {
 }
+
+const Season &Show::seasonAt(int index) const
+{
+	return *_seasons[index];
+}
