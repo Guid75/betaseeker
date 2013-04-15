@@ -2,6 +2,7 @@
 #define SEASON_H
 
 #include <QList>
+#include <QJsonObject>
 
 #include "episode.h"
 
@@ -15,9 +16,13 @@ public:
 	int episodeCount();
 	const Episode &episodeAt(int index);
 
+    void parseEpisodes(const QJsonObject &root);
+
 private:
 	int _number;
 	QList<Episode*> _episodes;
+
+    Episode *getEpisodeByEpisode(int episode) const;
 };
 
 #endif // SEASON_H

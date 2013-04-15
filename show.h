@@ -2,6 +2,7 @@
 #define TVSHOW_H
 
 #include <QString>
+#include <QJsonObject>
 
 #include "season.h"
 
@@ -19,11 +20,16 @@ public:
 	const QString url() const { return _url; }
 
 	const Season &seasonAt(int index) const;
+    int seasonCount() const;
+
+    void parseEpisodes(const QJsonObject &root);
 
 private:
 	QString _title;
 	QString _url;
 	QList<Season*> _seasons;
+
+    Season *getSeasonByNumber(int number) const;
 };
 
 #endif // TVSHOW_H

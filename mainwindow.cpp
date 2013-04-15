@@ -11,9 +11,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-static const QString apiKey = "9adb4ab628c6";
-static const QString websiteUrl = "http://api.betaseries.com";
-
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -35,6 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(&RequestManager::instance(), &RequestManager::requestFinished,
 			this, &MainWindow::requestFinished);
+
+    connect(&ShowManager::instance(), &ShowManager::refreshDone,
+            this, &MainWindow::refreshDone);
 }
 
 MainWindow::~MainWindow()
@@ -127,7 +127,41 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 	int showIndex = selected.indexes()[0].row();
 	const Show &show = ShowManager::instance().showAt(showIndex);
 
-	ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
+    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
+}
+
+void MainWindow::refreshDone(const QString &url, Show::ShowItem item)
+{
+    if (url != getCurrentShowUrl())
+        return;
+
+    if (item == Show::Item_Episodes)
+        refreshComboBoxes();
+}
+
+QString MainWindow::getCurrentShowUrl() const
+{
+    QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
+    if (selected.count() == 0)
+        return QString();
+
+    const Show &show = ShowManager::instance().showAt(selected[0].row());
+    return show.url();
+}
+
+void MainWindow::refreshComboBoxes()
+{
+    QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
+    if (selected.count() == 0)
+        return;
+
+    const Show &show = ShowManager::instance().showAt(selected[0].row());
+
+    ui->comboBoxSeason->clear();
+    ui->comboBoxSeason->addItem(tr("<Unspecified>"));
+    for (int i = 0; i < show.seasonCount(); i++)
+        ui->comboBoxSeason->addItem(tr("Season %1").arg(show.seasonAt(i).number()));
+    ui->comboBoxSeason->update();
 }
 
 void MainWindow::parseSearchResult(const QByteArray &response)

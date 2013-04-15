@@ -18,20 +18,22 @@ ShowManager &ShowManager::instance()
 ShowManager::ShowManager() :
 	QObject()
 {
-	connect(&RequestManager::instance(), &RequestManager::requestFinished,
+    connect(&RequestManager::instance(), &RequestManager::requestFinished,
 			this, &ShowManager::requestFinished);
 }
 
 void ShowManager::requestFinished(int ticketId, const QByteArray &response)
 {
-	QPair<QString,parse_func> parse = parsing[ticketId];
-	if (parse.first.isNull())
+    TicketData ticketData = parsing[ticketId];
+    if (ticketData.url.isNull())
 		return;
 
 	parsing.remove(ticketId);
 
 	// call the parse function
-	parse.second(parse.first, response);
+    QMetaObject::invokeMethod(this, ticketData.parseMethodName.toLocal8Bit(), Q_ARG(QString, ticketData.url), Q_ARG(QByteArray, response));
+
+    emit refreshDone(ticketData.url, ticketData.showItem);
 }
 
 void ShowManager::parseEpisodes(const QString &url, const QByteArray &response)
@@ -39,32 +41,12 @@ void ShowManager::parseEpisodes(const QString &url, const QByteArray &response)
 	Show *show = instance().showAt(url);
 	JsonParser parser(response);
 
-	if (!parser.isValid()) {
+    if (!parser.isValid()) {
 		// TODO manage error
 		return;
 	}
 
-	QJsonObject seasons = parser.root().value("seasons").toObject();
-	if (seasons.isEmpty()) {
-		// TODO manage error
-		return;
-	}
-
-	foreach (const QString &key, seasons.keys()) {
-		QJsonObject season = seasons.value(key).toObject();
-		if (season.isEmpty()) {
-			// TODO manage error
-			continue;
-		}
-
-		int number = season.value("number").toDouble(-1);
-		if (number == -1) {
-			// TODO manage error
-			continue;
-		}
-
-
-	}
+    show->parseEpisodes(parser.root());
 }
 
 const Show &ShowManager::showAt(int index) const
@@ -105,7 +87,7 @@ void ShowManager::refresh(const QString &url, Show::ShowItem item)
 	switch (item) {
 	case Show::Item_Episodes:
 		ticket = RequestManager::instance().showsEpisodes(show.url());
-		parsing.insert(ticket, QPair<QString,parse_func>(show.url(), &ShowManager::parseEpisodes));
+        parsing.insert(ticket, TicketData(show.url(), "parseEpisodes", Show::Item_Episodes));
 		break;
 	default:
 		break;

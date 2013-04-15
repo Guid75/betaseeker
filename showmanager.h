@@ -10,7 +10,7 @@ class ShowManager : public QObject
 {
 	Q_OBJECT
 public:
-	static ShowManager &instance();
+    static ShowManager &instance();
 
 	int showsCount() const { return _shows.count(); }
 	const Show &showAt(int index) const;
@@ -22,24 +22,30 @@ public:
 
 signals:
 	void showAdded(const Show &show);
-
-public slots:
+    void refreshDone(const QString &url, Show::ShowItem item);
 
 private:
-	typedef void (*parse_func)(const QString &, const QByteArray &);
+    struct TicketData {
+        TicketData() {}
+        TicketData(const QString &_url, const QString &_parseMethodName, Show::ShowItem _showItem) :
+            url(_url), parseMethodName(_parseMethodName), showItem(_showItem) {}
+        QString url;
+        QString parseMethodName;
+        Show::ShowItem showItem;
+    };
 
 	static ShowManager *_instance;
 	QList<Show*> _shows;
-	QHash<int,QPair<QString,parse_func> > parsing;
+    QHash<int,TicketData> parsing;
 
-	explicit ShowManager();
+    explicit ShowManager();
 	Show *showAt(const QString &url);
-
-	// parsing methods
-	static void parseEpisodes(const QString &url, const QByteArray &response);
 
 private slots:
 	void requestFinished(int ticketId, const QByteArray &response);
+
+    // parsing methods
+    void parseEpisodes(const QString &url, const QByteArray &response);
 };
 
 #endif // SHOWMANAGER_H

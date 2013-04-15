@@ -27,6 +27,7 @@ private slots:
 
     void requestFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
+    void refreshDone(const QString &url, Show::ShowItem item);
 
 private:
 	Ui::MainWindow *ui;
@@ -37,6 +38,8 @@ private:
 	void loadSettings();
 	void saveSettings();
     void parseSearchResult(const QByteArray &response);
+    void refreshComboBoxes();
+    QString getCurrentShowUrl() const;
 };
 
 #endif // MAINWINDOW_H
