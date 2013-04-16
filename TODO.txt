@@ -1,0 +1,3 @@
+- Embarquer une base sqlite pour toutes les données
+- Implémenter un système de péremption pour les données pour ne pas avoir à repasser les requêtes à chaque fois
+

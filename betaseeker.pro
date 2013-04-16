@@ -32,3 +32,6 @@ HEADERS  += mainwindow.h \
     episode.h
 
 FORMS    += mainwindow.ui
+
+OTHER_FILES += \
+    TODO.txt
