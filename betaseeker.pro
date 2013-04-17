@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     requestmanager.cpp \
     jsonparser.cpp \
     season.cpp \
-    episode.cpp
+    episode.cpp \
+    databasemanager.cpp
 
 HEADERS  += mainwindow.h \
     showlistmodel.h \
@@ -29,7 +30,8 @@ HEADERS  += mainwindow.h \
     requestmanager.h \
     jsonparser.h \
     season.h \
-    episode.h
+    episode.h \
+    databasemanager.h
 
 FORMS    += mainwindow.ui
 

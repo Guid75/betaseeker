@@ -28,6 +28,7 @@ private slots:
     void requestFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
     void refreshDone(const QString &url, Show::ShowItem item);
+    void afterShow();
 
 private:
 	Ui::MainWindow *ui;

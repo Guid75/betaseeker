@@ -3,7 +3,10 @@
 #include <QJsonObject>
 #include <QSettings>
 #include <QTimer>
+#include <QSqlDatabase>
+#include <QMessageBox>
 
+#include "databasemanager.h"
 #include "showmanager.h"
 #include "requestmanager.h"
 #include "jsonparser.h"
@@ -35,12 +38,33 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&ShowManager::instance(), &ShowManager::refreshDone,
             this, &MainWindow::refreshDone);
+
+    QTimer::singleShot(0, Qt::CoarseTimer, this, SLOT(afterShow()));
 }
 
 MainWindow::~MainWindow()
 {
 	saveSettings();
+    // TODO: save database
+    QSqlDatabase::database().close();
+
 	delete ui;
+}
+
+void MainWindow::afterShow()
+{
+    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+        QMessageBox::warning(this, tr("Warning"), tr("No sqlite driver was found, no user data will be read or write"));
+        return;
+    }
+
+    // read from an existing database
+    if (!DatabaseManager::instance().openDB()) {
+        QMessageBox::warning(this, tr("Warning"), tr("Cannot open the database"));
+        return;
+    }
+
+    ShowManager::instance().populateFromDB();
 }
 
 void MainWindow::loadSettings()
@@ -49,15 +73,15 @@ void MainWindow::loadSettings()
 	settings.beginGroup("General");
 	settings.endGroup();
 
-	settings.beginGroup("Shows");
-	QStringList shows = settings.childGroups();
-	foreach (const QString &showUrl, settings.childGroups()) {
-		settings.beginGroup(showUrl);
-		ShowManager::instance().addShow(settings.value("title").toString(), showUrl);
-		settings.endGroup();
-	}
+//	settings.beginGroup("Shows");
+//	QStringList shows = settings.childGroups();
+//	foreach (const QString &showUrl, settings.childGroups()) {
+//		settings.beginGroup(showUrl);
+//		ShowManager::instance().addShow(settings.value("title").toString(), showUrl);
+//		settings.endGroup();
+//	}
 
-	settings.endGroup();
+//	settings.endGroup();
 }
 
 void MainWindow::saveSettings()
@@ -67,15 +91,14 @@ void MainWindow::saveSettings()
 	settings.beginGroup("General");
 	settings.endGroup();
 
-	settings.beginGroup("Shows");
+    // settings.beginGroup("Shows");
 	//	foreach (const TvShow &show, _shows) {
 	//		settings.beginGroup(show.url());
 	//		settings.setValue("title", show.title());
 	//		settings.endGroup();
 	//	}
 
-	settings.endGroup();
-
+    // settings.endGroup();
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)

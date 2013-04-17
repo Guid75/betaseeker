@@ -1,4 +1,6 @@
 #include <QStringList>
+#include <QSqlDatabase>
+#include <QSqlQuery>
 
 #include "show.h"
 #include "requestmanager.h"
@@ -14,12 +16,25 @@ ShowManager &ShowManager::instance()
 	return *_instance;
 }
 
-
 ShowManager::ShowManager() :
 	QObject()
 {
     connect(&RequestManager::instance(), &RequestManager::requestFinished,
 			this, &ShowManager::requestFinished);
+}
+
+void ShowManager::populateFromDB()
+{
+
+    QSqlQuery query("create table episodes(one varchar(10), two smallint)");
+
+//    query.prepare("create table tbl3(one varchar(10), two smallint)");
+//    query.prepare("INSERT INTO tbl1 VALUES ('lu', 20)");
+//    query.prepare("SELECT * FROM tbl1");
+    if (query.exec())
+        qDebug("success");
+    else
+        qDebug("failure");
 }
 
 void ShowManager::requestFinished(int ticketId, const QByteArray &response)

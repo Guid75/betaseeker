@@ -20,6 +20,8 @@ public:
 
 	void refresh(const QString &url, Show::ShowItem item);
 
+    void populateFromDB();
+
 signals:
 	void showAdded(const Show &show);
     void refreshDone(const QString &url, Show::ShowItem item);
