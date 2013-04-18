@@ -4,6 +4,9 @@
 #include <QSettings>
 #include <QTimer>
 #include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <QSqlField>
 #include <QMessageBox>
 
 #include "databasemanager.h"
@@ -20,17 +23,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	searchTimerId(0)
 {
 	ui->setupUi(this);
-	ui->splitterMain->setSizes(QList<int>() << 75);
-
-	showListModel = new ShowListModel(this);
-	ui->listViewShows->setModel(showListModel);
+    ui->splitterShows->setSizes(QList<int>() << 150);
 
 	loadSettings();
 
 	ui->tabWidgetMain->setCurrentWidget(ui->tabSearch);
 	ui->lineEditSearch->setFocus();
 
-	connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
 			this, &MainWindow::currentShowChanged);
 
 	connect(&RequestManager::instance(), &RequestManager::requestFinished,
@@ -63,6 +63,16 @@ void MainWindow::afterShow()
         QMessageBox::warning(this, tr("Warning"), tr("Cannot open the database"));
         return;
     }
+
+    //showListModel = new ShowListModel(this);
+    showListModel = new QSqlTableModel(this, QSqlDatabase::database());
+    showListModel->setTable("show");
+    showListModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+    showListModel->select();
+    showListModel->setHeaderData(0, Qt::Horizontal, tr("Title"));
+    ui->listViewShows->setModel(showListModel);
+    ui->listViewShows->setModelColumn(showListModel->fieldIndex("title"));
+    ui->listViewShows->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     ShowManager::instance().populateFromDB();
 }
@@ -131,9 +141,25 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	if (!item)
 		return;
 
-	ShowManager::instance().addShow(item->text(), item->data(Qt::UserRole).toString());
-	ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
-	ui->listViewShows->selectionModel()->select(showListModel->index(ShowManager::instance().showsCount() - 1, 0), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Clear);
+    QString id = item->data(Qt::UserRole).toString();
+    QModelIndex index = getIndexByShowId(id);
+    if (index.isValid()) {
+        // already exists, just focus it
+        ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
+        ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
+        return;
+    }
+
+    QSqlRecord record = QSqlDatabase::database().record("show");
+    record.setValue("id", id);
+    record.setValue("title", item->text());
+    showListModel->insertRecord(-1, record);
+
+    index = getIndexByShowId(id);
+    if (index.isValid()) {
+        ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
+        ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
+    }
 }
 
 void MainWindow::requestFinished(int ticketId, const QByteArray &response)
@@ -170,6 +196,17 @@ QString MainWindow::getCurrentShowUrl() const
 
     const Show &show = ShowManager::instance().showAt(selected[0].row());
     return show.url();
+}
+
+// A bit ugly, I don't like the idea to go throught ALL rows myself, maybe a Qt method exists
+QModelIndex MainWindow::getIndexByShowId(const QString &id) const
+{
+    for (int row = 0; row < showListModel->rowCount(); row++) {
+        QSqlRecord record = showListModel->record(row);
+        if (record.value("id") == id)
+            return showListModel->index(row, 0);
+    }
+    return QModelIndex();
 }
 
 void MainWindow::refreshComboBoxes()

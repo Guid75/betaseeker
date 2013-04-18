@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include <QSqlTableModel>
 
 #include "showlistmodel.h"
 
@@ -34,13 +35,15 @@ private:
 	Ui::MainWindow *ui;
     int searchTicketId;
 	int searchTimerId;
-	ShowListModel *showListModel;
+    //ShowListModel *showListModel;
+    QSqlTableModel *showListModel;
 
 	void loadSettings();
 	void saveSettings();
     void parseSearchResult(const QByteArray &response);
     void refreshComboBoxes();
     QString getCurrentShowUrl() const;
+    QModelIndex getIndexByShowId(const QString &id) const;
 };
 
 #endif // MAINWINDOW_H
