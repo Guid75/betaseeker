@@ -92,6 +92,11 @@ int ShowManager::indexOfShow(const QString &url) const
 	return -1;
 }
 
+void ShowManager::load(const QString &showid, Show::ShowItem item)
+{
+    // TODO
+}
+
 void ShowManager::refresh(const QString &url, Show::ShowItem item)
 {
 	int index = indexOfShow(url);

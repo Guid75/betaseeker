@@ -18,6 +18,10 @@ public:
 	void addShow(const QString &title, const QString &url);
 	int indexOfShow(const QString &url) const;
 
+    // Load a show item from the database or directly from the website if lifetime is exceed
+    void load(const QString &showid, Show::ShowItem item);
+
+    // deprecated
 	void refresh(const QString &url, Show::ShowItem item);
 
     void populateFromDB();

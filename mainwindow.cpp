@@ -30,9 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->tabWidgetMain->setCurrentWidget(ui->tabSearch);
 	ui->lineEditSearch->setFocus();
 
-    connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
-			this, &MainWindow::currentShowChanged);
-
 	connect(&RequestManager::instance(), &RequestManager::requestFinished,
 			this, &MainWindow::requestFinished);
 
@@ -73,6 +70,9 @@ void MainWindow::afterShow()
     ui->listViewShows->setModel(showListModel);
     ui->listViewShows->setModelColumn(showListModel->fieldIndex("title"));
     ui->listViewShows->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &MainWindow::currentShowChanged);
 
     ShowManager::instance().populateFromDB();
 }
@@ -173,10 +173,11 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 	if (selected.count() == 0)
 		return;
 
-	int showIndex = selected.indexes()[0].row();
-	const Show &show = ShowManager::instance().showAt(showIndex);
+    QSqlRecord record = showListModel->record(selected.indexes()[0].row());
+//	const Show &show = ShowManager::instance().showAt(showIndex);
 
-    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
+    ShowManager::instance().load(record.value("id").toString(), Show::Item_Episodes);
+//    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
 }
 
 void MainWindow::refreshDone(const QString &url, Show::ShowItem item)
