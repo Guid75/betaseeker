@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	searchTimerId(0)
 {
 	ui->setupUi(this);
-    ui->splitterShows->setSizes(QList<int>() << 150);
+	ui->splitterShows->setSizes(QList<int>() << 150);
 
 	loadSettings();
 
@@ -33,48 +33,54 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(&RequestManager::instance(), &RequestManager::requestFinished,
 			this, &MainWindow::requestFinished);
 
-    connect(&ShowManager::instance(), &ShowManager::refreshDone,
-            this, &MainWindow::refreshDone);
+	connect(&ShowManager::instance(), &ShowManager::refreshDone,
+			this, &MainWindow::refreshDone);
 
-    QTimer::singleShot(0, Qt::CoarseTimer, this, SLOT(afterShow()));
+	QTimer::singleShot(0, Qt::CoarseTimer, this, SLOT(afterShow()));
 }
 
 MainWindow::~MainWindow()
 {
 	saveSettings();
-    // TODO: save database
-    QSqlDatabase::database().close();
+	// TODO: save database
+	QSqlDatabase::database().close();
 
 	delete ui;
 }
 
 void MainWindow::afterShow()
 {
-    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        QMessageBox::warning(this, tr("Warning"), tr("No sqlite driver was found, no user data will be read or write"));
-        return;
-    }
+	if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+		QMessageBox::warning(this, tr("Warning"), tr("No sqlite driver was found, no user data will be read or write"));
+		return;
+	}
 
-    // read from an existing database
-    if (!DatabaseManager::instance().openDB()) {
-        QMessageBox::warning(this, tr("Warning"), tr("Cannot open the database"));
-        return;
-    }
+	// read from an existing database
+	switch (DatabaseManager::instance().openDB()) {
+	case 0:
+		QMessageBox::critical(this, tr("Warning"), tr("Cannot open neither the persistent cache database nor the memory database, you might have some serious resources problems, program cannot continue, bye!"));
+		close();
+		return;
+	case 1:
+		QMessageBox::warning(this, tr("Warning"), tr("Cannot open the persistent cache database, fallback to the memory data but all your cache data will be lost at the program closure"));
+		break;
+	default:
+		break;
+	}
 
-    //showListModel = new ShowListModel(this);
-    showListModel = new QSqlTableModel(this, QSqlDatabase::database());
-    showListModel->setTable("show");
-    showListModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-    showListModel->select();
-    showListModel->setHeaderData(0, Qt::Horizontal, tr("Title"));
-    ui->listViewShows->setModel(showListModel);
-    ui->listViewShows->setModelColumn(showListModel->fieldIndex("title"));
-    ui->listViewShows->setSelectionBehavior(QAbstractItemView::SelectRows);
+	showListModel = new QSqlTableModel(this, QSqlDatabase::database());
+	showListModel->setTable("show");
+	showListModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+	showListModel->select();
+	showListModel->setHeaderData(0, Qt::Horizontal, tr("Title"));
+	ui->listViewShows->setModel(showListModel);
+	ui->listViewShows->setModelColumn(showListModel->fieldIndex("title"));
+	ui->listViewShows->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &MainWindow::currentShowChanged);
+	connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
+			this, &MainWindow::currentShowChanged);
 
-    ShowManager::instance().populateFromDB();
+	ShowManager::instance().populateFromDB();
 }
 
 void MainWindow::loadSettings()
@@ -83,15 +89,15 @@ void MainWindow::loadSettings()
 	settings.beginGroup("General");
 	settings.endGroup();
 
-//	settings.beginGroup("Shows");
-//	QStringList shows = settings.childGroups();
-//	foreach (const QString &showUrl, settings.childGroups()) {
-//		settings.beginGroup(showUrl);
-//		ShowManager::instance().addShow(settings.value("title").toString(), showUrl);
-//		settings.endGroup();
-//	}
+	//	settings.beginGroup("Shows");
+	//	QStringList shows = settings.childGroups();
+	//	foreach (const QString &showUrl, settings.childGroups()) {
+	//		settings.beginGroup(showUrl);
+	//		ShowManager::instance().addShow(settings.value("title").toString(), showUrl);
+	//		settings.endGroup();
+	//	}
 
-//	settings.endGroup();
+	//	settings.endGroup();
 }
 
 void MainWindow::saveSettings()
@@ -101,14 +107,14 @@ void MainWindow::saveSettings()
 	settings.beginGroup("General");
 	settings.endGroup();
 
-    // settings.beginGroup("Shows");
+	// settings.beginGroup("Shows");
 	//	foreach (const TvShow &show, _shows) {
 	//		settings.beginGroup(show.url());
 	//		settings.setValue("title", show.title());
 	//		settings.endGroup();
 	//	}
 
-    // settings.endGroup();
+	// settings.endGroup();
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)
@@ -141,25 +147,25 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	if (!item)
 		return;
 
-    QString id = item->data(Qt::UserRole).toString();
-    QModelIndex index = getIndexByShowId(id);
-    if (index.isValid()) {
-        // already exists, just focus it
-        ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
-        ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
-        return;
-    }
+	QString id = item->data(Qt::UserRole).toString();
+	QModelIndex index = getIndexByShowId(id);
+	if (index.isValid()) {
+		// already exists, just focus it
+		ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
+		ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
+		return;
+	}
 
-    QSqlRecord record = QSqlDatabase::database().record("show");
-    record.setValue("id", id);
-    record.setValue("title", item->text());
-    showListModel->insertRecord(-1, record);
+	QSqlRecord record = QSqlDatabase::database().record("show");
+	record.setValue("id", id);
+	record.setValue("title", item->text());
+	showListModel->insertRecord(-1, record);
 
-    index = getIndexByShowId(id);
-    if (index.isValid()) {
-        ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
-        ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
-    }
+	index = getIndexByShowId(id);
+	if (index.isValid()) {
+		ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
+		ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
+	}
 }
 
 void MainWindow::requestFinished(int ticketId, const QByteArray &response)
@@ -173,56 +179,56 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 	if (selected.count() == 0)
 		return;
 
-    QSqlRecord record = showListModel->record(selected.indexes()[0].row());
-//	const Show &show = ShowManager::instance().showAt(showIndex);
+	QSqlRecord record = showListModel->record(selected.indexes()[0].row());
+	//	const Show &show = ShowManager::instance().showAt(showIndex);
 
-    ShowManager::instance().load(record.value("id").toString(), Show::Item_Episodes);
-//    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
+	ShowManager::instance().load(record.value("id").toString(), Show::Item_Episodes);
+	//    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
 }
 
 void MainWindow::refreshDone(const QString &url, Show::ShowItem item)
 {
-    if (url != getCurrentShowUrl())
-        return;
+	if (url != getCurrentShowUrl())
+		return;
 
-    if (item == Show::Item_Episodes)
-        refreshComboBoxes();
+	if (item == Show::Item_Episodes)
+		refreshComboBoxes();
 }
 
 QString MainWindow::getCurrentShowUrl() const
 {
-    QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
-    if (selected.count() == 0)
-        return QString();
+	QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
+	if (selected.count() == 0)
+		return QString();
 
-    const Show &show = ShowManager::instance().showAt(selected[0].row());
-    return show.url();
+	const Show &show = ShowManager::instance().showAt(selected[0].row());
+	return show.url();
 }
 
 // A bit ugly, I don't like the idea to go throught ALL rows myself, maybe a Qt method exists
 QModelIndex MainWindow::getIndexByShowId(const QString &id) const
 {
-    for (int row = 0; row < showListModel->rowCount(); row++) {
-        QSqlRecord record = showListModel->record(row);
-        if (record.value("id") == id)
-            return showListModel->index(row, 0);
-    }
-    return QModelIndex();
+	for (int row = 0; row < showListModel->rowCount(); row++) {
+		QSqlRecord record = showListModel->record(row);
+		if (record.value("id") == id)
+			return showListModel->index(row, 0);
+	}
+	return QModelIndex();
 }
 
 void MainWindow::refreshComboBoxes()
 {
-    QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
-    if (selected.count() == 0)
-        return;
+	QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
+	if (selected.count() == 0)
+		return;
 
-    const Show &show = ShowManager::instance().showAt(selected[0].row());
+	const Show &show = ShowManager::instance().showAt(selected[0].row());
 
-    ui->comboBoxSeason->clear();
-    ui->comboBoxSeason->addItem(tr("<Unspecified>"));
-    for (int i = 0; i < show.seasonCount(); i++)
-        ui->comboBoxSeason->addItem(tr("Season %1").arg(show.seasonAt(i).number()));
-    ui->comboBoxSeason->update();
+	ui->comboBoxSeason->clear();
+	ui->comboBoxSeason->addItem(tr("<Unspecified>"));
+	for (int i = 0; i < show.seasonCount(); i++)
+		ui->comboBoxSeason->addItem(tr("Season %1").arg(show.seasonAt(i).number()));
+	ui->comboBoxSeason->update();
 }
 
 void MainWindow::parseSearchResult(const QByteArray &response)
