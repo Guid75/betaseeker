@@ -17,16 +17,18 @@ SOURCES += main.cpp\
     showmanager.cpp \
     requestmanager.cpp \
     jsonparser.cpp \
-    databasemanager.cpp
+    databasemanager.cpp \
+    showdetailwidget.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
     requestmanager.h \
     jsonparser.h \
-    databasemanager.h
+    databasemanager.h \
+    showdetailwidget.h
 
 FORMS    += mainwindow.ui \
-    showdetail.ui
+    showdetailwidget.ui
 
 OTHER_FILES += \
     TODO.txt

@@ -9,7 +9,6 @@
 
 namespace Ui {
 class MainWindow;
-class ShowDetail;
 }
 
 class MainWindow : public QMainWindow
@@ -34,7 +33,6 @@ private slots:
 
 private:
 	Ui::MainWindow *ui;
-    Ui::ShowDetail *showDetailUi;
     int searchTicketId;
 	int searchTimerId;
     //ShowListModel *showListModel;
