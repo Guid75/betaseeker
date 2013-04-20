@@ -47,7 +47,9 @@ private slots:
 	void requestFinished(int ticketId, const QByteArray &response);
 
     // parsing methods
-    void parseSeasons(const QString &url, const QByteArray &response);
+    void parseEpisode(const QString &showId, int season, const QJsonObject &root);
+    void parseEpisodes(const QString &showId, int season, const QJsonObject &root);
+    void parseSeasons(const QString &showId, const QByteArray &response);
 };
 
 #endif // SHOWMANAGER_H

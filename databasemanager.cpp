@@ -35,12 +35,18 @@ int DatabaseManager::openDB()
 	// create tables?
 	// TODO: do not create if they exist and if they embed the needed fields
 	QSqlQuery query;
-    query.exec("create table show (id text primary key, title text, episodes_last_check_date integer)");
 
-    query.exec("CREATE TABLE season "
-			   "(show_id text, "
-               "number integer, "
-               "PRIMARY KEY (show_id, number))");
+    // shows
+    query.exec("CREATE TABLE show (id text primary key, title text, episodes_last_check_date integer)");
+
+    // seasons
+    query.exec("CREATE TABLE season (show_id text, number integer, PRIMARY KEY (show_id, number))");
+
+    // episodes
+    query.exec("CREATE TABLE episode "
+               "(show_id text, season integer, episode integer, title text, "
+               "number text, global integer, date integer, "
+               "comments integer, PRIMARY KEY (show_id, season, episode))");
 
 	return ret;
 }

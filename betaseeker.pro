@@ -15,20 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
     mainwindow.cpp \
     showmanager.cpp \
-    show.cpp \
     requestmanager.cpp \
     jsonparser.cpp \
-    season.cpp \
-    episode.cpp \
     databasemanager.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
-    show.h \
     requestmanager.h \
     jsonparser.h \
-    season.h \
-    episode.h \
     databasemanager.h
 
 FORMS    += mainwindow.ui
