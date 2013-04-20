@@ -1,8 +1,8 @@
 #include <QStringList>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QDateTime>
 
-#include "show.h"
 #include "requestmanager.h"
 #include "jsonparser.h"
 #include "showmanager.h"
@@ -114,14 +114,14 @@ void ShowManager::parseSeasons(const QString &showId, const QByteArray &response
 //    query.exec();
 }
 
-int ShowManager::refreshOnExpired(const QString &showid, Show::ShowItem item)
+int ShowManager::refreshOnExpired(const QString &showid, Item item)
 {
     QSqlQuery query;
     qint64 last_check_epoch = 0;
     qint64 expiration = 24 * 60 * 60 * 1000; // one day
     int ticket;
     switch (item) {
-    case Show::Item_Episodes:
+    case Item_Episodes:
         // have we the season in database?
         // take the expiration date in account
         query.exec(QString("SELECT episodes_last_check_date FROM show WHERE id='%1'").arg(showid));

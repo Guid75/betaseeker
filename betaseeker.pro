@@ -25,7 +25,8 @@ HEADERS  += mainwindow.h \
     jsonparser.h \
     databasemanager.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    showdetail.ui
 
 OTHER_FILES += \
     TODO.txt

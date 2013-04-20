@@ -4,8 +4,6 @@
 #include <QObject>
 #include <QHash>
 
-#include "show.h"
-
 class ShowManager : public QObject
 {
 	Q_OBJECT
@@ -22,10 +20,9 @@ public:
      * \retval 1 if the show is expired and a request ticket has been emitted
      * \retval -1 if the request ticket could not be given by the request manager
      */
-    int refreshOnExpired(const QString &showid, Show::ShowItem item);
+    int refreshOnExpired(const QString &showid, Item item);
 
 signals:
-	void showAdded(const Show &show);
     void refreshDone(const QString &url, Item item);
 
 private:

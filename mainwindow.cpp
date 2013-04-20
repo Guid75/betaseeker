@@ -16,10 +16,12 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui_showdetail.h"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
+    showDetailUi(new Ui::ShowDetail),
 	searchTimerId(0)
 {
 	ui->setupUi(this);
@@ -161,7 +163,7 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 	QSqlRecord record = showListModel->record(selected.indexes()[0].row());
 	//	const Show &show = ShowManager::instance().showAt(showIndex);
 
-    switch (ShowManager::instance().refreshOnExpired(record.value("id").toString(), Show::Item_Episodes)) {
+    switch (ShowManager::instance().refreshOnExpired(record.value("id").toString(), ShowManager::Item_Episodes)) {
     case 0:
         refreshShowDetails();
         break;
@@ -227,6 +229,7 @@ void MainWindow::refreshShowDetails()
 
     foreach (int number, numbers) {
         QWidget *widget = new QWidget(ui->tabWidgetSeasons);
+        showDetailUi->setupUi(widget);
         ui->tabWidgetSeasons->addTab(widget, tr("Season %n", "", number));
     }
 }
