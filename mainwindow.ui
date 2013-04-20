@@ -108,10 +108,26 @@
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLineEdit" name="lineEditShowFilter"/>
+            <property name="horizontalSpacing">
+             <number>0</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>4</number>
+            </property>
+            <item row="2" column="3">
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>123</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
-            <item row="1" column="0" colspan="2">
+            <item row="1" column="0" colspan="4">
              <widget class="QListView" name="listViewShows">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -121,25 +137,30 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="0" column="0" colspan="4">
+             <widget class="QLineEdit" name="lineEditShowFilter"/>
+            </item>
+            <item row="2" column="1">
+             <widget class="QPushButton" name="pushButtonRefresh">
+              <property name="text">
+               <string>Refresh</string>
+              </property>
+              <property name="icon">
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/resources/icons/refresh.png</normaloff>:/icons/resources/icons/refresh.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
              <widget class="QPushButton" name="pushButtonUnfollow">
               <property name="text">
                <string>Unfollow</string>
               </property>
+              <property name="icon">
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/resources/icons/delete.png</normaloff>:/icons/resources/icons/delete.png</iconset>
+              </property>
              </widget>
-            </item>
-            <item row="2" column="1">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>192</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -196,8 +217,16 @@
      <string>Settings</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionNo_help_for_now"/>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuShow"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionApp_key">
@@ -210,9 +239,21 @@
     <string>E&amp;xit</string>
    </property>
   </action>
+  <action name="actionNo_help_for_now">
+   <property name="text">
+    <string>No help for now</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>

@@ -35,7 +35,6 @@ private:
 	Ui::MainWindow *ui;
     int searchTicketId;
 	int searchTimerId;
-    //ShowListModel *showListModel;
     QSqlTableModel *showListModel;
 
 	void loadSettings();
