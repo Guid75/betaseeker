@@ -79,8 +79,6 @@ void MainWindow::afterShow()
 
 	connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
 			this, &MainWindow::currentShowChanged);
-
-	ShowManager::instance().populateFromDB();
 }
 
 void MainWindow::loadSettings()
@@ -88,16 +86,6 @@ void MainWindow::loadSettings()
 	QSettings settings("Guid75", QCoreApplication::instance()->applicationName());
 	settings.beginGroup("General");
 	settings.endGroup();
-
-	//	settings.beginGroup("Shows");
-	//	QStringList shows = settings.childGroups();
-	//	foreach (const QString &showUrl, settings.childGroups()) {
-	//		settings.beginGroup(showUrl);
-	//		ShowManager::instance().addShow(settings.value("title").toString(), showUrl);
-	//		settings.endGroup();
-	//	}
-
-	//	settings.endGroup();
 }
 
 void MainWindow::saveSettings()
@@ -106,15 +94,6 @@ void MainWindow::saveSettings()
 	QSettings settings("Guid75", QCoreApplication::instance()->applicationName());
 	settings.beginGroup("General");
 	settings.endGroup();
-
-	// settings.beginGroup("Shows");
-	//	foreach (const TvShow &show, _shows) {
-	//		settings.beginGroup(show.url());
-	//		settings.setValue("title", show.title());
-	//		settings.endGroup();
-	//	}
-
-	// settings.endGroup();
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)
@@ -182,27 +161,35 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 	QSqlRecord record = showListModel->record(selected.indexes()[0].row());
 	//	const Show &show = ShowManager::instance().showAt(showIndex);
 
-	ShowManager::instance().load(record.value("id").toString(), Show::Item_Episodes);
-	//    ShowManager::instance().refresh(show.url(), Show::Item_Episodes);
+    switch (ShowManager::instance().refreshOnExpired(record.value("id").toString(), Show::Item_Episodes)) {
+    case 0:
+        refreshShowDetails();
+        break;
+    case -1:
+        // TODO manage error
+        break;
+    default:
+        break;
+    }
 }
 
-void MainWindow::refreshDone(const QString &url, Show::ShowItem item)
+void MainWindow::refreshDone(const QString &url, ShowManager::Item item)
 {
-	if (url != getCurrentShowUrl())
-		return;
+    if (url != getCurrentShowUrl())
+        return;
 
-	if (item == Show::Item_Episodes)
-		refreshComboBoxes();
+    if (item == ShowManager::Item_Episodes)
+        refreshShowDetails();
 }
 
 QString MainWindow::getCurrentShowUrl() const
 {
-	QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
-	if (selected.count() == 0)
+    QModelIndex index = ui->listViewShows->currentIndex();
+    if (!index.isValid())
 		return QString();
 
-	const Show &show = ShowManager::instance().showAt(selected[0].row());
-	return show.url();
+    QSqlRecord record = showListModel->record(index.row());
+    return record.value("id").toString();
 }
 
 // A bit ugly, I don't like the idea to go throught ALL rows myself, maybe a Qt method exists
@@ -216,19 +203,32 @@ QModelIndex MainWindow::getIndexByShowId(const QString &id) const
 	return QModelIndex();
 }
 
-void MainWindow::refreshComboBoxes()
+void MainWindow::refreshShowDetails()
 {
-	QModelIndexList selected = ui->listViewShows->selectionModel()->selectedRows();
-	if (selected.count() == 0)
-		return;
+    QModelIndex index = ui->listViewShows->currentIndex();
+    if (!index.isValid())
+        return;
 
-	const Show &show = ShowManager::instance().showAt(selected[0].row());
+    QSqlRecord record = showListModel->record(index.row());
 
-	ui->comboBoxSeason->clear();
-	ui->comboBoxSeason->addItem(tr("<Unspecified>"));
-	for (int i = 0; i < show.seasonCount(); i++)
-		ui->comboBoxSeason->addItem(tr("Season %1").arg(show.seasonAt(i).number()));
-	ui->comboBoxSeason->update();
+    // clear all tabs
+    while (ui->tabWidgetSeasons->count()) {
+        QWidget *widget = ui->tabWidgetSeasons->widget(0);
+        delete widget;
+    }
+    ui->tabWidgetSeasons->clear();
+
+    // create new tabs
+    QSqlQuery query(QString("SELECT number FROM season WHERE show_id='%1'").arg(record.value("id").toString()));
+    QList<int> numbers;
+    while (query.next())
+        numbers << query.value("number").toInt();
+    qSort(numbers.begin(), numbers.end(), qGreater<int>());
+
+    foreach (int number, numbers) {
+        QWidget *widget = new QWidget(ui->tabWidgetSeasons);
+        ui->tabWidgetSeasons->addTab(widget, tr("Season %n", "", number));
+    }
 }
 
 void MainWindow::parseSearchResult(const QByteArray &response)

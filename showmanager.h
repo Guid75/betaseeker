@@ -10,48 +10,44 @@ class ShowManager : public QObject
 {
 	Q_OBJECT
 public:
+    enum Item {
+        Item_Episodes,
+        Item_Subtitles
+    };
+
     static ShowManager &instance();
 
-	int showsCount() const { return _shows.count(); }
-	const Show &showAt(int index) const;
-	Show &showAt(int index);
-	void addShow(const QString &title, const QString &url);
-	int indexOfShow(const QString &url) const;
-
-    // Load a show item from the database or directly from the website if lifetime is exceed
-    void load(const QString &showid, Show::ShowItem item);
-
-    // deprecated
-	void refresh(const QString &url, Show::ShowItem item);
-
-    void populateFromDB();
+    /*! \brief If a show item is expired, reload it from the website
+     * \retval 0 if the show item is still fresh
+     * \retval 1 if the show is expired and a request ticket has been emitted
+     * \retval -1 if the request ticket could not be given by the request manager
+     */
+    int refreshOnExpired(const QString &showid, Show::ShowItem item);
 
 signals:
 	void showAdded(const Show &show);
-    void refreshDone(const QString &url, Show::ShowItem item);
+    void refreshDone(const QString &url, Item item);
 
 private:
     struct TicketData {
         TicketData() {}
-        TicketData(const QString &_url, const QString &_parseMethodName, Show::ShowItem _showItem) :
+        TicketData(const QString &_url, const QString &_parseMethodName, Item _showItem) :
             url(_url), parseMethodName(_parseMethodName), showItem(_showItem) {}
         QString url;
         QString parseMethodName;
-        Show::ShowItem showItem;
+        Item showItem;
     };
 
 	static ShowManager *_instance;
-	QList<Show*> _shows;
     QHash<int,TicketData> parsing;
 
     explicit ShowManager();
-	Show *showAt(const QString &url);
 
 private slots:
 	void requestFinished(int ticketId, const QByteArray &response);
 
     // parsing methods
-    void parseEpisodes(const QString &url, const QByteArray &response);
+    void parseSeasons(const QString &url, const QByteArray &response);
 };
 
 #endif // SHOWMANAGER_H

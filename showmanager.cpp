@@ -23,20 +23,6 @@ ShowManager::ShowManager() :
 			this, &ShowManager::requestFinished);
 }
 
-void ShowManager::populateFromDB()
-{
-    //QSqlQuery query("SELECT name FROM sqlite_master WHERE type='table' AND name='shows'");
-    //QSqlQuery query("create table episodes(one varchar(10), two smallint)");
-
-//    query.prepare("create table tbl3(one varchar(10), two smallint)");
-//    query.prepare("INSERT INTO tbl1 VALUES ('lu', 20)");
-//    query.prepare("SELECT * FROM tbl1");
-//    if (query.exec())
-//        qDebug("success");
-//    else
-//        qDebug("failure");
-}
-
 void ShowManager::requestFinished(int ticketId, const QByteArray &response)
 {
     TicketData ticketData = parsing[ticketId];
@@ -51,75 +37,75 @@ void ShowManager::requestFinished(int ticketId, const QByteArray &response)
     emit refreshDone(ticketData.url, ticketData.showItem);
 }
 
-void ShowManager::parseEpisodes(const QString &url, const QByteArray &response)
+void ShowManager::parseSeasons(const QString &url, const QByteArray &response)
 {
-	Show *show = instance().showAt(url);
 	JsonParser parser(response);
-
     if (!parser.isValid()) {
 		// TODO manage error
 		return;
 	}
 
-    show->parseEpisodes(parser.root());
+    QJsonObject seasonsJson = parser.root().value("seasons").toObject();
+    foreach (const QString &key, seasonsJson.keys()) {
+        QJsonObject seasonJson = seasonsJson.value(key).toObject();
+        if (seasonJson.isEmpty())
+            continue;
+
+        // numbers are under the form of strings from betaseries :/
+        bool ok;
+        int number = seasonJson.value("number").toString().toInt(&ok);
+        if (!ok)
+            continue;
+
+        QSqlQuery query;
+        query.prepare("INSERT INTO season (show_id, number) "
+                      "VALUES (:show_id, :number)");
+        query.bindValue(":show_id", url);
+        query.bindValue(":number", number);
+        query.exec();
+        /*        Season *season = getSeasonByNumber(number);
+        if (!season) {
+            season = new Season(number);
+            _seasons << season;
+        }*/
+        //season->parseEpisodes(seasonJson);
+    }
+
+    // update the episodes last check date of the show
+    QSqlQuery query;
+    query.exec(QString("UPDATE show SET episodes_last_check_date=%1 where id='%2';").arg(QDateTime::currentMSecsSinceEpoch() / 1000).arg(url));
+//    QSqlQuery query;
+//    query.prepare("UPDATE show SET episodes_last_check_date=:epoch where id=:showid");
+//    query.bindValue("epoch", QDateTime::currentMSecsSinceEpoch() / 1000);
+//    query.bindValue("showid", "'" + url + "'");
+//    query.exec();
 }
 
-const Show &ShowManager::showAt(int index) const
+int ShowManager::refreshOnExpired(const QString &showid, Show::ShowItem item)
 {
-	return *_shows[index];
-}
-
-Show &ShowManager::showAt(int index)
-{
-	return *_shows[index];
-}
-
-Show *ShowManager::showAt(const QString &url)
-{
-	int index = indexOfShow(url);
-	if (index >= 0)
-		return _shows[index];
-	return 0;
-}
-
-int ShowManager::indexOfShow(const QString &url) const
-{
-	for (int i = 0; i < _shows.count(); i++) {
-		const Show &show = *_shows[i];
-		if (show.url() == url)
-			return i;
-	}
-	return -1;
-}
-
-void ShowManager::load(const QString &showid, Show::ShowItem item)
-{
-    // TODO
-}
-
-void ShowManager::refresh(const QString &url, Show::ShowItem item)
-{
-	int index = indexOfShow(url);
-	if (index < 0)
-		return;
-	const Show &show = showAt(index);
-	int ticket;
-	switch (item) {
-	case Show::Item_Episodes:
-		ticket = RequestManager::instance().showsEpisodes(show.url());
-        parsing.insert(ticket, TicketData(show.url(), "parseEpisodes", Show::Item_Episodes));
-		break;
-	default:
-		break;
-	}
-}
-
-void ShowManager::addShow(const QString &title, const QString &url)
-{
-	if (indexOfShow(url) >= 0)
-		return;
-
-	Show *show = new Show(title, url);
-	_shows << show;
-	emit showAdded(*show);
+    QSqlQuery query;
+    qint64 last_check_epoch = 0;
+    qint64 expiration = 24 * 60 * 60 * 1000;
+    int ticket;
+    switch (item) {
+    case Show::Item_Episodes:
+        // have we the season in database?
+        // take the expiration date in account
+        query.exec(QString("SELECT episodes_last_check_date FROM show WHERE id='%1'").arg(showid));
+        if (query.next() && !query.value(0).isNull()) {
+            last_check_epoch = query.value(0).toLongLong() * 1000;
+        }
+        if (QDateTime::currentDateTime().toMSecsSinceEpoch() - last_check_epoch > expiration) {
+            // expired data, we need to launch the request
+            ticket = RequestManager::instance().showsEpisodes(showid);
+            // TODO ticket can be invalid, manage it
+            parsing.insert(ticket, TicketData(showid, "parseSeasons", Item_Episodes));
+            return 1;
+        } else
+            return 0;
+        break;
+    default:
+        break;
+    }
+    return -1;
 }

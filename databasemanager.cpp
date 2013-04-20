@@ -12,21 +12,17 @@ DatabaseManager::DatabaseManager(QObject *parent) :
 
 int DatabaseManager::openDB()
 {
-	// Find QSLite driver
+    // Find QSLite driver
 	db = QSqlDatabase::addDatabase("QSQLITE");
 
-	// NOTE: We have to store database file into user home folder in Linux
-	QString path(QDir::home().path());
-	path.append(QDir::separator()).append(".betaseeker");
-	if (!QDir(path).exists())
-		QDir(QDir::home().path()).mkdir(".betaseeker");
-	path.append(QDir::separator()).append("shows.sqlite");
-	path = QDir::toNativeSeparators(path);
-	db.setDatabaseName(path);
+    QDir dir = QDir::home();
+    if (dir.mkpath(".betaseeker") && dir.cd(".betaseeker")) {
+        db.setDatabaseName(QDir::toNativeSeparators(dir.filePath("shows.sqlite")));
+    }
 
 	int ret = 2;
-	// Open database
-	if (!db.open()) {
+    // let try to open the persistent database
+    if (!db.open()) {
 		ret = 1;
 		// now let try with a memory database
 		db.setDatabaseName(":memory:");
@@ -39,13 +35,12 @@ int DatabaseManager::openDB()
 	// create tables?
 	// TODO: do not create if they exist and if they embed the needed fields
 	QSqlQuery query;
-	query.exec("create table show "
-			   "(id text primary key, "
-			   "title text)");
+    query.exec("create table show (id text primary key, title text, episodes_last_check_date integer)");
 
-	query.exec("create table season "
+    query.exec("CREATE TABLE season "
 			   "(show_id text, "
-			   "number integer)");
+               "number integer, "
+               "PRIMARY KEY (show_id, number))");
 
 	return ret;
 }

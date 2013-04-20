@@ -5,7 +5,7 @@
 #include <QListWidgetItem>
 #include <QSqlTableModel>
 
-#include "showlistmodel.h"
+#include "showmanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,7 +28,7 @@ private slots:
 
     void requestFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
-    void refreshDone(const QString &url, Show::ShowItem item);
+    void refreshDone(const QString &url, ShowManager::Item item);
     void afterShow();
 
 private:
@@ -41,7 +41,7 @@ private:
 	void loadSettings();
 	void saveSettings();
     void parseSearchResult(const QByteArray &response);
-    void refreshComboBoxes();
+    void refreshShowDetails();
     QString getCurrentShowUrl() const;
     QModelIndex getIndexByShowId(const QString &id) const;
 };

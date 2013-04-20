@@ -14,7 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     mainwindow.cpp \
-    showlistmodel.cpp \
     showmanager.cpp \
     show.cpp \
     requestmanager.cpp \
@@ -24,7 +23,6 @@ SOURCES += main.cpp\
     databasemanager.cpp
 
 HEADERS  += mainwindow.h \
-    showlistmodel.h \
     showmanager.h \
     show.h \
     requestmanager.h \

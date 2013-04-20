@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>635</width>
-    <height>430</height>
+    <width>875</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,18 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>4</number>
+    </property>
+    <property name="rightMargin">
+     <number>4</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
+    </property>
     <item row="1" column="0" colspan="4">
      <widget class="QTabWidget" name="tabWidgetMain">
       <property name="currentIndex">
@@ -37,7 +49,7 @@
        <attribute name="title">
         <string>Shows</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_5">
+       <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
          <widget class="QSplitter" name="splitterShows">
           <property name="orientation">
@@ -46,9 +58,9 @@
           <property name="childrenCollapsible">
            <bool>false</bool>
           </property>
-          <widget class="QListView" name="listViewShows">
+          <widget class="QWidget" name="widgetShows" native="true">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -59,15 +71,7 @@
              <height>0</height>
             </size>
            </property>
-          </widget>
-          <widget class="QWidget" name="widgetShowDetails" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_4">
+           <layout class="QGridLayout" name="gridLayout_5">
             <property name="leftMargin">
              <number>0</number>
             </property>
@@ -81,27 +85,42 @@
              <number>0</number>
             </property>
             <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_3">
-              <item row="0" column="0">
-               <widget class="QComboBox" name="comboBoxLang"/>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="comboBoxSeason"/>
-              </item>
-              <item row="0" column="2">
-               <widget class="QComboBox" name="comboBoxEpisode"/>
-              </item>
-              <item row="1" column="0" colspan="3">
-               <widget class="QTreeView" name="treeViewSubtitles">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>1</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QLineEdit" name="lineEditShowFilter"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QListView" name="listViewShows">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="widgetShowDetails" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QTabWidget" name="tabWidgetSeasons"/>
             </item>
            </layout>
           </widget>
@@ -118,7 +137,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>635</width>
+     <width>875</width>
      <height>21</height>
     </rect>
    </property>
