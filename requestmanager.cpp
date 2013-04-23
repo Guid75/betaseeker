@@ -32,7 +32,7 @@ int RequestManager::showsSearch(const QString &expression)
     return pushRequest(QNetworkRequest(url));
 }
 
-int RequestManager::RequestManager::showsEpisodes(const QString &url, int season, int episode, bool summary, bool hide_notes)
+int RequestManager::showsEpisodes(const QString &url, int season, int episode, bool summary, bool hide_notes)
 {
     QString str = QString("%1/shows/episodes/%2.json?&key=%3").arg(websiteUrl).arg(url).arg(apiKey);
 
@@ -44,6 +44,28 @@ int RequestManager::RequestManager::showsEpisodes(const QString &url, int season
         str.append("&summary=1");
     if (hide_notes)
         str.append("hide_notes=1");
+
+    return pushRequest(QNetworkRequest(QUrl(str)));
+}
+
+int RequestManager::subtitlesShow(const QString &showId, int season, int episode, const QString &language)
+{
+    QString str = QString("%1/subtitles/show/%2.json?&key=%3").arg(websiteUrl).arg(showId).arg(apiKey);
+    if (season >= 0)
+        str.append(QString("&season=%1").arg(season));
+    if (episode >= 0)
+        str.append(QString("&episode=%1").arg(episode));
+    if (!language.isEmpty())
+        str.append(QString("&language=%1").arg(language));
+
+    return pushRequest(QNetworkRequest(QUrl(str)));
+}
+
+int RequestManager::subtitlesShowByFile(const QString &showId, const QString &fileName, const QString &language)
+{
+    QString str = QString("%1/subtitles/show/%2.json?&key=%3&file=%4").arg(websiteUrl).arg(showId).arg(apiKey).arg(fileName);
+    if (!language.isEmpty())
+        str.append(QString("&language=%1").arg(language));
 
     return pushRequest(QNetworkRequest(QUrl(str)));
 }

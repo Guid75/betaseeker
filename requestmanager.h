@@ -37,6 +37,8 @@ public:
 
     int showsSearch(const QString &expression);
     int showsEpisodes(const QString &url, int season = -1, int episode = -1, bool summary = true, bool hide_notes = true);
+    int subtitlesShow(const QString &showId, int season = -1, int episode = -1, const QString &language = QString());
+    int subtitlesShowByFile(const QString &showId, const QString &fileName, const QString &language = QString());
 
 signals:
     void requestFinished(int ticketId, const QByteArray &reponse);

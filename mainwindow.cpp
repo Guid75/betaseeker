@@ -14,13 +14,14 @@
 #include "requestmanager.h"
 #include "jsonparser.h"
 #include "showdetailwidget.h"
+#include "loadingwidget.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    ui(new Ui::MainWindow),    
 	searchTimerId(0)
 {
 	ui->setupUi(this);
@@ -229,6 +230,11 @@ void MainWindow::refreshShowDetails()
     foreach (int number, numbers) {
         ShowDetailWidget *widget = new ShowDetailWidget;
         ui->tabWidgetSeasons->addTab(widget, tr("Season %n", "", number));
+        widget->setDisabled(true);
+        LoadingWidget *loadingBox = new LoadingWidget(widget);
+        /*waitingBox->resize(100, 30);
+        waitingBox->move(100, 100);*/
+        loadingBox->show();
     }
 }
 

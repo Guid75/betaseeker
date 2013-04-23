@@ -223,6 +223,7 @@
     </property>
     <addaction name="actionNo_help_for_now"/>
     <addaction name="actionAbout"/>
+    <addaction name="actionIcons_created_by_David_Keegan_http_inscopeapps_com"/>
    </widget>
    <addaction name="menuShow"/>
    <addaction name="menuSettings"/>
@@ -247,6 +248,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionIcons_created_by_David_Keegan_http_inscopeapps_com">
+   <property name="text">
+    <string>Icons created by David Keegan (http://inscopeapps.com)</string>
    </property>
   </action>
  </widget>
