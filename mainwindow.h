@@ -40,6 +40,7 @@ private:
 	void loadSettings();
 	void saveSettings();
     void parseSearchResult(const QByteArray &response);
+    void clearShowDetails();
     void refreshShowDetails();
     QString getCurrentShowUrl() const;
     QModelIndex getIndexByShowId(const QString &id) const;

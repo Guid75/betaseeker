@@ -161,16 +161,21 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 		return;
 
 	QSqlRecord record = showListModel->record(selected.indexes()[0].row());
-	//	const Show &show = ShowManager::instance().showAt(showIndex);
 
+    // TODO we must check is a request is running yet for the current show and show the loading box in this case
+
+    LoadingWidget::hideLoadingMask(ui->tabWidgetSeasons);
     switch (ShowManager::instance().refreshOnExpired(record.value("id").toString(), ShowManager::Item_Episodes)) {
     case 0:
+        clearShowDetails();
         refreshShowDetails();
         break;
     case -1:
         // TODO manage error
         break;
     default:
+        clearShowDetails();
+        LoadingWidget::showLoadingMask(ui->tabWidgetSeasons);
         break;
     }
 }
@@ -181,6 +186,7 @@ void MainWindow::refreshDone(const QString &url, ShowManager::Item item)
         return;
 
     if (item == ShowManager::Item_Episodes)
+        LoadingWidget::hideLoadingMask(ui->tabWidgetSeasons);
         refreshShowDetails();
 }
 
@@ -205,6 +211,16 @@ QModelIndex MainWindow::getIndexByShowId(const QString &id) const
 	return QModelIndex();
 }
 
+void MainWindow::clearShowDetails()
+{
+    // clear all tabs
+    while (ui->tabWidgetSeasons->count()) {
+        QWidget *widget = ui->tabWidgetSeasons->widget(0);
+        delete widget;
+    }
+    ui->tabWidgetSeasons->clear();
+}
+
 void MainWindow::refreshShowDetails()
 {
     QModelIndex index = ui->listViewShows->currentIndex();
@@ -212,13 +228,6 @@ void MainWindow::refreshShowDetails()
         return;
 
     QSqlRecord record = showListModel->record(index.row());
-
-    // clear all tabs
-    while (ui->tabWidgetSeasons->count()) {
-        QWidget *widget = ui->tabWidgetSeasons->widget(0);
-        delete widget;
-    }
-    ui->tabWidgetSeasons->clear();
 
     // create new tabs
     QSqlQuery query(QString("SELECT number FROM season WHERE show_id='%1'").arg(record.value("id").toString()));
@@ -231,10 +240,7 @@ void MainWindow::refreshShowDetails()
         ShowDetailWidget *widget = new ShowDetailWidget;
         ui->tabWidgetSeasons->addTab(widget, tr("Season %n", "", number));
         widget->setDisabled(true);
-        LoadingWidget *loadingBox = new LoadingWidget(widget);
-        /*waitingBox->resize(100, 30);
-        waitingBox->move(100, 100);*/
-        loadingBox->show();
+//        LoadingWidget::showLoadingMask(widget);
     }
 }
 
