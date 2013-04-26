@@ -10,10 +10,18 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     ui->setupUi(this);
 
     subtitlesModel = new SubtitlesModel(this);
-    ui->treeView->setModel(subtitlesModel);
+	ui->treeView->setModel(subtitlesModel);
+	ui->treeView->header()->resizeSection(0, 200);
+}
+
+void ShowDetailWidget::init(const QString &showId, int season)
+{
+	_showId = showId;
+	_season = season;
+	subtitlesModel->init(_showId, _season);
 }
 
 void ShowDetailWidget::loadSubtitles()
 {
-    qDebug("load subtitles");
+//	subtitlesModel->init(_showId, _season);
 }

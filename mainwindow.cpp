@@ -156,6 +156,8 @@ void MainWindow::on_tabWidgetSeasons_currentChanged(int index)
         return;
 
     // TODO refresh subtitles for a season
+/*	ShowDetailWidget *widget = qobject_cast<ShowDetailWidget*>(ui->tabWidgetSeasons->widget(index));
+	widget->loadSubtitles();*/
 }
 
 void MainWindow::requestFinished(int ticketId, const QByteArray &response)
@@ -251,6 +253,7 @@ void MainWindow::refreshShowDetails()
 
     foreach (int number, numbers) {
         ShowDetailWidget *widget = new ShowDetailWidget;
+		widget->init(record.value("show_id").toString(), number);
         ui->tabWidgetSeasons->addTab(widget, tr("Season %n", "", number));
     }
 }

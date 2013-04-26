@@ -10,6 +10,7 @@ class SubtitlesModel : public QAbstractItemModel
     Q_OBJECT
 public:
     explicit SubtitlesModel(QObject *parent = 0);
+	~SubtitlesModel();
     
     void init(const QString &showId, int season);
 
