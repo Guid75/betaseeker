@@ -25,6 +25,7 @@ protected:
 private slots:
 	void on_lineEditSearch_textChanged(const QString &text);
 	void on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item);
+    void on_tabWidgetSeasons_currentChanged(int index);
 
     void requestFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
@@ -36,6 +37,7 @@ private:
     int searchTicketId;
 	int searchTimerId;
     QSqlTableModel *showListModel;
+    bool ignoreCurrentPage;
 
 	void loadSettings();
 	void saveSettings();

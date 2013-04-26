@@ -106,9 +106,9 @@ void ShowManager::parseSeasons(const QString &showId, const QByteArray &response
 
     // update the episodes last check date of the show
     QSqlQuery query;
-    query.exec(QString("UPDATE show SET episodes_last_check_date=%1 where id='%2';").arg(QDateTime::currentMSecsSinceEpoch() / 1000).arg(showId));
+    query.exec(QString("UPDATE show SET episodes_last_check_date=%1 WHERE show_id='%2';").arg(QDateTime::currentMSecsSinceEpoch() / 1000).arg(showId));
 //    QSqlQuery query;
-//    query.prepare("UPDATE show SET episodes_last_check_date=:epoch where id=:showid");
+//    query.prepare("UPDATE show SET episodes_last_check_date=:epoch WHERE show_id=:showid");
 //    query.bindValue("epoch", QDateTime::currentMSecsSinceEpoch() / 1000);
 //    query.bindValue("showid", "'" + url + "'");
 //    query.exec();
@@ -124,7 +124,7 @@ int ShowManager::refreshOnExpired(const QString &showid, Item item)
     case Item_Episodes:
         // have we the season in database?
         // take the expiration date in account
-        query.exec(QString("SELECT episodes_last_check_date FROM show WHERE id='%1'").arg(showid));
+        query.exec(QString("SELECT episodes_last_check_date FROM show WHERE show_id='%1'").arg(showid));
         if (query.next() && !query.value(0).isNull()) {
             last_check_epoch = query.value(0).toLongLong() * 1000;
         }

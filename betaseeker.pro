@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     jsonparser.cpp \
     databasemanager.cpp \
     showdetailwidget.cpp \
-    loadingwidget.cpp
+    loadingwidget.cpp \
+    subtitlesmodel.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     jsonparser.h \
     databasemanager.h \
     showdetailwidget.h \
-    loadingwidget.h
+    loadingwidget.h \
+    subtitlesmodel.h
 
 FORMS    += mainwindow.ui \
     showdetailwidget.ui \

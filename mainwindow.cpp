@@ -22,7 +22,8 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
     ui(new Ui::MainWindow),    
-	searchTimerId(0)
+    searchTimerId(0),
+    ignoreCurrentPage(false)
 {
 	ui->setupUi(this);
 	ui->splitterShows->setSizes(QList<int>() << 150);
@@ -138,7 +139,7 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	}
 
 	QSqlRecord record = QSqlDatabase::database().record("show");
-	record.setValue("id", id);
+    record.setValue("show_id", id);
 	record.setValue("title", item->text());
 	showListModel->insertRecord(-1, record);
 
@@ -146,7 +147,15 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	if (index.isValid()) {
 		ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
 		ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
-	}
+    }
+}
+
+void MainWindow::on_tabWidgetSeasons_currentChanged(int index)
+{
+    if (index < 0 || ignoreCurrentPage)
+        return;
+
+    // TODO refresh subtitles for a season
 }
 
 void MainWindow::requestFinished(int ticketId, const QByteArray &response)
@@ -165,7 +174,7 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
     // TODO we must check is a request is running yet for the current show and show the loading box in this case
 
     LoadingWidget::hideLoadingMask(ui->tabWidgetSeasons);
-    switch (ShowManager::instance().refreshOnExpired(record.value("id").toString(), ShowManager::Item_Episodes)) {
+    switch (ShowManager::instance().refreshOnExpired(record.value("show_id").toString(), ShowManager::Item_Episodes)) {
     case 0:
         clearShowDetails();
         refreshShowDetails();
@@ -175,6 +184,7 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
         break;
     default:
         clearShowDetails();
+        ui->tabWidgetSeasons->setDisabled(true);
         LoadingWidget::showLoadingMask(ui->tabWidgetSeasons);
         break;
     }
@@ -187,6 +197,7 @@ void MainWindow::refreshDone(const QString &url, ShowManager::Item item)
 
     if (item == ShowManager::Item_Episodes)
         LoadingWidget::hideLoadingMask(ui->tabWidgetSeasons);
+        ui->tabWidgetSeasons->setDisabled(false);
         refreshShowDetails();
 }
 
@@ -197,7 +208,7 @@ QString MainWindow::getCurrentShowUrl() const
 		return QString();
 
     QSqlRecord record = showListModel->record(index.row());
-    return record.value("id").toString();
+    return record.value("show_id").toString();
 }
 
 // A bit ugly, I don't like the idea to go throught ALL rows myself, maybe a Qt method exists
@@ -205,7 +216,7 @@ QModelIndex MainWindow::getIndexByShowId(const QString &id) const
 {
 	for (int row = 0; row < showListModel->rowCount(); row++) {
 		QSqlRecord record = showListModel->record(row);
-		if (record.value("id") == id)
+        if (record.value("show_id") == id)
 			return showListModel->index(row, 0);
 	}
 	return QModelIndex();
@@ -213,12 +224,14 @@ QModelIndex MainWindow::getIndexByShowId(const QString &id) const
 
 void MainWindow::clearShowDetails()
 {
+    ignoreCurrentPage = true;
     // clear all tabs
     while (ui->tabWidgetSeasons->count()) {
         QWidget *widget = ui->tabWidgetSeasons->widget(0);
         delete widget;
     }
     ui->tabWidgetSeasons->clear();
+    ignoreCurrentPage = false;
 }
 
 void MainWindow::refreshShowDetails()
@@ -230,7 +243,7 @@ void MainWindow::refreshShowDetails()
     QSqlRecord record = showListModel->record(index.row());
 
     // create new tabs
-    QSqlQuery query(QString("SELECT number FROM season WHERE show_id='%1'").arg(record.value("id").toString()));
+    QSqlQuery query(QString("SELECT number FROM season WHERE show_id='%1'").arg(record.value("show_id").toString()));
     QList<int> numbers;
     while (query.next())
         numbers << query.value("number").toInt();
@@ -239,8 +252,6 @@ void MainWindow::refreshShowDetails()
     foreach (int number, numbers) {
         ShowDetailWidget *widget = new ShowDetailWidget;
         ui->tabWidgetSeasons->addTab(widget, tr("Season %n", "", number));
-        widget->setDisabled(true);
-//        LoadingWidget::showLoadingMask(widget);
     }
 }
 
