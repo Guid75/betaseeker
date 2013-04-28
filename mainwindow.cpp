@@ -157,7 +157,43 @@ void MainWindow::on_tabWidgetSeasons_currentChanged(int index)
 
     // TODO refresh subtitles for a season
 /*	ShowDetailWidget *widget = qobject_cast<ShowDetailWidget*>(ui->tabWidgetSeasons->widget(index));
-	widget->loadSubtitles();*/
+    widget->loadSubtitles();*/
+}
+
+void MainWindow::on_pushButtonUnfollow_clicked()
+{
+    QModelIndex index = ui->listViewShows->currentIndex();
+    if (!index.isValid())
+        return;
+
+    QSqlRecord record = showListModel->record(index.row());
+    QString showId = record.value("show_id").toString();
+
+    // remove all records from all tables which a certain show_id
+    QSqlQuery query;
+ /*   query.prepare("DELETE FROM show WHERE show_id=:show_id");
+    query.bindValue(":show_id", showId);
+    query.exec();*/
+
+    query.prepare("DELETE FROM season WHERE show_id=:show_id");
+    query.bindValue(":show_id", showId);
+    query.exec();
+
+    query.prepare("DELETE FROM episode WHERE show_id=:show_id");
+    query.bindValue(":show_id", showId);
+    query.exec();
+
+    query.prepare("DELETE FROM subtitle WHERE show_id=:show_id");
+    query.bindValue(":show_id", showId);
+    query.exec();
+
+    // finally, remove from the model itself
+    if (showListModel->removeRows(index.row(), 1)) {
+        showListModel->select();
+        clearShowDetails();
+    }
+
+    // TODO manage error of removeRows
 }
 
 void MainWindow::requestFinished(int ticketId, const QByteArray &response)

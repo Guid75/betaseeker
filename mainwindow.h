@@ -26,6 +26,7 @@ private slots:
 	void on_lineEditSearch_textChanged(const QString &text);
 	void on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item);
     void on_tabWidgetSeasons_currentChanged(int index);
+    void on_pushButtonUnfollow_clicked();
 
     void requestFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);

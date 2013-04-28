@@ -56,10 +56,11 @@ void EpisodeWidget::expand()
     QPixmap pix = icon.pixmap(20, 20);
     ui->labelPixmap->setPixmap(pix);
 
-    if (ui->widgetSubtitles->isHidden())
+    if (ui->widgetSubtitles->isHidden() && ticket == -1)
         ui->widgetSubtitles->show();
     else {
-        ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode());
+        if (ticket == -1)
+            ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode());
         QMovie *movie = new QMovie(":/icons/resources/loading.gif");
         movie->setScaledSize(QSize(20, 20));
         ui->labelPixmap->setMovie(movie);
