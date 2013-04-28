@@ -4,6 +4,8 @@
 #include <QWidget>
 
 class SubtitlesModel;
+class SeasonWidget;
+
 namespace Ui {
 class ShowDetailWidget;
 }
@@ -28,6 +30,7 @@ private:
     Ui::ShowDetailWidget *ui;
     int subtitleTicket;
     SubtitlesModel *subtitlesModel;
+    SeasonWidget *seasonWidget;
 };
 
 #endif // SHOWDETAILWIDGET_H

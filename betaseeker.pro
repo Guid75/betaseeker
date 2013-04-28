@@ -20,7 +20,9 @@ SOURCES += main.cpp\
     databasemanager.cpp \
     showdetailwidget.cpp \
     loadingwidget.cpp \
-    subtitlesmodel.cpp
+    subtitlewidget.cpp \
+    episodewidget.cpp \
+    seasonwidget.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
@@ -29,11 +31,15 @@ HEADERS  += mainwindow.h \
     databasemanager.h \
     showdetailwidget.h \
     loadingwidget.h \
-    subtitlesmodel.h
+    subtitlewidget.h \
+    episodewidget.h \
+    seasonwidget.h
 
 FORMS    += mainwindow.ui \
     showdetailwidget.ui \
-    loadingwidget.ui
+    loadingwidget.ui \
+    episodewidget.ui \
+    subtitlewidget.ui
 
 OTHER_FILES += \
     TODO.txt

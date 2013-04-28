@@ -1,4 +1,4 @@
-#include "subtitlesmodel.h"
+#include "seasonwidget.h"
 
 #include "ui_showdetailwidget.h"
 #include "showdetailwidget.h"
@@ -9,16 +9,15 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    subtitlesModel = new SubtitlesModel(this);
-	ui->treeView->setModel(subtitlesModel);
-	ui->treeView->header()->resizeSection(0, 200);
+    seasonWidget = new SeasonWidget;
+    ui->scrollArea->setWidget(seasonWidget);
 }
 
 void ShowDetailWidget::init(const QString &showId, int season)
 {
-	_showId = showId;
+    _showId = showId;
 	_season = season;
-	subtitlesModel->init(_showId, _season);
+    seasonWidget->init(_showId, _season);
 }
 
 void ShowDetailWidget::loadSubtitles()
