@@ -1,3 +1,16 @@
-- Embarquer une base sqlite pour toutes les données
 - Implémenter un système de péremption pour les données pour ne pas avoir à repasser les requêtes à chaque fois
+  => fait pour la liste des épisodes
+  => l'implémenter pour les sous-titres
+  => implémenter les réglages
+
+- Attention au bouton "Unfollow" quand un show est en train d'etre récupéré (on devrait tout annuler)
+- Implémenter le bouton Refresh
+  => rafraichir la liste des saisons et épisodes
+  => peut-etre invalider les sous-titres (à voir)
+
+- Implémenter le filtre de recherche dans l'onglet "Shows"
+- Implémenter le filtre de recherche dans le détail du show
+- Implémenter les combobox d'épisode et de langage
+
+- Un EpisodeWidget ne devrait se connecter au RequestManager que pendant son envoi de requête
 
