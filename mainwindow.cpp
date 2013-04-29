@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	loadSettings();
 
-	ui->tabWidgetMain->setCurrentWidget(ui->tabSearch);
+    ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
 	ui->lineEditSearch->setFocus();
 
 	connect(&RequestManager::instance(), &RequestManager::requestFinished,

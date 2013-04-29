@@ -5,5 +5,7 @@
         <file>resources/icons/down.png</file>
         <file>resources/icons/up.png</file>
         <file>resources/loading.gif</file>
+        <file>resources/icon-collapse.png</file>
+        <file>resources/icon-expand.png</file>
     </qresource>
 </RCC>

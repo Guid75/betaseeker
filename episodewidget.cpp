@@ -36,8 +36,8 @@ void EpisodeWidget::init(const QSqlRecord &record, const QString &showId, int se
     _showId = showId;
     _season = season;
     ui->label->setText(tr("Episode %1 (%2)").arg(record.value("episode").toInt()).arg(record.value("title").toString()));
-    QIcon icon(":/icons/resources/icons/down.png");
-    QPixmap pix = icon.pixmap(20, 20);
+    QIcon icon(":/icons/resources/icon-expand.png");
+    QPixmap pix = icon.pixmap(16, 16);
     ui->labelPixmap->setPixmap(pix);
 }
 
@@ -52,8 +52,8 @@ void EpisodeWidget::expand()
         return;
 
     collapsed = false;
-    QIcon icon(":/icons/resources/icons/up.png");
-    QPixmap pix = icon.pixmap(20, 20);
+    QIcon icon(":/icons/resources/icon-collapse.png");
+    QPixmap pix = icon.pixmap(16, 16);
     ui->labelPixmap->setPixmap(pix);
 
     if (ui->widgetSubtitles->isHidden() && ticket == -1)
@@ -62,7 +62,7 @@ void EpisodeWidget::expand()
         if (ticket == -1)
             ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode());
         QMovie *movie = new QMovie(":/icons/resources/loading.gif");
-        movie->setScaledSize(QSize(20, 20));
+        movie->setScaledSize(QSize(16, 16));
         ui->labelPixmap->setMovie(movie);
         movie->start();
     }
@@ -74,7 +74,7 @@ void EpisodeWidget::collapse()
         return;
 
     collapsed = true;
-    QIcon icon(":/icons/resources/icons/down.png");
+    QIcon icon(":/icons/resources/icon-expand.png");
     QPixmap pix = icon.pixmap(20, 20);
     ui->labelPixmap->setPixmap(pix);
     ui->widgetSubtitles->hide();
@@ -170,11 +170,11 @@ void EpisodeWidget::requestFinished(int ticketId, const QByteArray &response)
 
     QString res;
     if (collapsed)
-        res = ":/icons/resources/icons/up.png";
+        res = ":/icons/resources/icon-expand.png";
     else
-        res = ":/icons/resources/icons/down.png";
+        res = ":/icons/resources/icon-collapse.png";
     QIcon icon(res);
-    QPixmap pix = icon.pixmap(20, 20);
+    QPixmap pix = icon.pixmap(16, 16);
     ui->labelPixmap->setPixmap(pix);
 
     parseSubtitles(response);
@@ -185,9 +185,7 @@ bool EpisodeWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonPress) {
         SubtitleWidget *subtitleWidget = qobject_cast<SubtitleWidget*>(obj);
         if (subtitleWidget) {
-            qDebug("click on subtitle");
             QDesktopServices::openUrl(subtitleWidget->record().value("url").toString());
-            qDebug(qPrintable(subtitleWidget->record().value("url").toString()));
             return true;
         }
     }

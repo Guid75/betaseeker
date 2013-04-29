@@ -53,7 +53,9 @@ void SeasonWidget::init(const QString &showId, int season)
             widget->installEventFilter(this);
         }
     }
-    qobject_cast<QVBoxLayout*>(layout())->addStretch();
+    //qobject_cast<QVBoxLayout*>(layout())->addStretch();
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(layout());
+    lay->addStretch(1);
 }
 
 void SeasonWidget::clear()
