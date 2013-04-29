@@ -48,11 +48,16 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
       <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLabel:hover {
+      <string notr="true">QLabel {
+	color: black;
+}
+
+QLabel:hover {
 	background-color: rgba(220, 220, 220, 255);
 	border: 1px solid rgba(150, 150, 150, 255);
 	border-radius: 3px;
-}</string>
+}
+</string>
      </property>
      <property name="text">
       <string>label</string>
