@@ -14,3 +14,5 @@
 
 - Un EpisodeWidget ne devrait se connecter au RequestManager que pendant son envoi de requête
 
+- Effacer les répertoires des settings lorsqu'on unfollow une série ? Probablement, quitte à refaire saisir le répertoire le jour où la série est refollowed
+

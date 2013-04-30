@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     loadingwidget.cpp \
     subtitlewidget.cpp \
     episodewidget.cpp \
-    seasonwidget.cpp
+    seasonwidget.cpp \
+    settings.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
@@ -33,7 +34,8 @@ HEADERS  += mainwindow.h \
     loadingwidget.h \
     subtitlewidget.h \
     episodewidget.h \
-    seasonwidget.h
+    seasonwidget.h \
+    settings.h
 
 FORMS    += mainwindow.ui \
     showdetailwidget.ui \

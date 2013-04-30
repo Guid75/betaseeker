@@ -18,10 +18,8 @@ public:
 
 	void init(const QString &showId, int season);
 
-    void loadSubtitles();
-    
 signals:
-    
+
 public slots:
 
 private:
@@ -31,6 +29,10 @@ private:
     int subtitleTicket;
     SubtitlesModel *subtitlesModel;
     SeasonWidget *seasonWidget;
+
+private slots:
+    void on_pushButtonDefineIt_clicked();
+    void on_pushButtonForgetIt_clicked();
 };
 
 #endif // SHOWDETAILWIDGET_H

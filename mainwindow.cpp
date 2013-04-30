@@ -1,7 +1,6 @@
 #include <QNetworkRequest>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QSettings>
 #include <QTimer>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -15,6 +14,7 @@
 #include "jsonparser.h"
 #include "showdetailwidget.h"
 #include "loadingwidget.h"
+#include "settings.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -86,17 +86,10 @@ void MainWindow::afterShow()
 
 void MainWindow::loadSettings()
 {
-	QSettings settings("Guid75", QCoreApplication::instance()->applicationName());
-	settings.beginGroup("General");
-	settings.endGroup();
 }
 
 void MainWindow::saveSettings()
 {
-	return;
-	QSettings settings("Guid75", QCoreApplication::instance()->applicationName());
-	settings.beginGroup("General");
-	settings.endGroup();
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)
