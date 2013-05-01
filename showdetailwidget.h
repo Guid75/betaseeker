@@ -18,9 +18,12 @@
 #define SHOWDETAILWIDGET_H
 
 #include <QWidget>
+#include <QItemSelection>
 
 class SubtitlesModel;
 class SeasonWidget;
+class QSqlTableModel;
+class EpisodeModel;
 
 namespace Ui {
 class ShowDetailWidget;
@@ -45,10 +48,20 @@ private:
     int subtitleTicket;
     SubtitlesModel *subtitlesModel;
     SeasonWidget *seasonWidget;
+    QSqlTableModel *episodeModel;
+    EpisodeModel *episodeProxyModel;
+    QSqlTableModel *subtitleModel;
+    QMap<int, int> tickets;
+
+    void parseSubtitles(int episode, const QByteArray &response);
 
 private slots:
     void on_pushButtonDefineIt_clicked();
     void on_pushButtonForgetIt_clicked();
+
+    void currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &);
+    void requestFinished(int ticketId, const QByteArray &response);
+
 };
 
 #endif // SHOWDETAILWIDGET_H

@@ -7,5 +7,7 @@
         <file>resources/loading.gif</file>
         <file>resources/icon-collapse.png</file>
         <file>resources/icon-expand.png</file>
+        <file>resources/icons/right_arrow.png</file>
+        <file>resources/icons/left_arrow.png</file>
     </qresource>
 </RCC>

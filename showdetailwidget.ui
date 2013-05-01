@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>300</height>
+    <width>765</width>
+    <height>429</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,126 +26,141 @@
    <property name="bottomMargin">
     <number>4</number>
    </property>
-   <property name="spacing">
-    <number>6</number>
-   </property>
-   <item row="0" column="0">
-    <widget class="QLineEdit" name="lineEditSearch"/>
+   <item row="0" column="2">
+    <widget class="QComboBox" name="comboBoxLang"/>
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="comboBoxEpisode"/>
    </item>
-   <item row="0" column="2">
-    <widget class="QComboBox" name="comboBoxLang"/>
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="lineEditSearch"/>
    </item>
    <item row="1" column="0" colspan="3">
-    <widget class="QWidget" name="widgetEpisodes" native="true">
-     <property name="styleSheet">
-      <string notr="true">QWidget#widgetEpisodes {
-	border: 1px solid rgba(180, 180, 180, 255);
-}</string>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <property name="leftMargin">
-       <number>0</number>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QListView" name="listViewEpisodes">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="topMargin">
-       <number>0</number>
+     </widget>
+     <widget class="QWidget" name="widgetEpisodeDetail" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QWidget" name="widgetSeasonDir" native="true">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QWidget#widgetSeasonDir {
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="horizontalSpacing">
+        <number>0</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>3</number>
+       </property>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="comboBoxSubtitles">
+         <item>
+          <property name="text">
+           <string>All</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QWidget" name="widgetSeasonDir" native="true">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QWidget#widgetSeasonDir {
 background-color: rgba(255, 255, 200, 255);
 border: 1px solid rgba(150, 150, 150, 255);
 }</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <property name="leftMargin">
-          <number>5</number>
          </property>
-         <property name="topMargin">
-          <number>3</number>
-         </property>
-         <property name="rightMargin">
-          <number>3</number>
-         </property>
-         <property name="bottomMargin">
-          <number>3</number>
-         </property>
-         <property name="spacing">
-          <number>2</number>
-         </property>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pushButtonForgetIt">
-           <property name="text">
-            <string>Forget it</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="pushButtonDefineIt">
-           <property name="text">
-            <string>Define it</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: black;
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>3</number>
+          </property>
+          <property name="rightMargin">
+           <number>3</number>
+          </property>
+          <property name="bottomMargin">
+           <number>3</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButtonForgetIt">
+            <property name="text">
+             <string>Forget it</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButtonDefineIt">
+            <property name="text">
+             <string>Define it</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelNoDirSpecified">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: black;
 </string>
-           </property>
-           <property name="text">
-            <string>No directory specified for this season</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QScrollArea" name="scrollArea">
-        <property name="frameShape">
-         <enum>QFrame::HLine</enum>
-        </property>
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>371</width>
-           <height>235</height>
-          </rect>
-         </property>
+            </property>
+            <property name="text">
+             <string>No directory specified for this season</string>
+            </property>
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-       </widget>
-      </item>
-     </layout>
+       </item>
+       <item row="2" column="0">
+        <widget class="QListView" name="listViewSubtitles"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

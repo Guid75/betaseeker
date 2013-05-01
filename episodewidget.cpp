@@ -52,8 +52,9 @@ void EpisodeWidget::init(const QSqlRecord &record, const QString &showId, int se
     _showId = showId;
     _season = season;
     ui->label->setText(tr("Episode %1 (%2)").arg(record.value("episode").toInt()).arg(record.value("title").toString()));
-    QIcon icon(":/icons/resources/icon-expand.png");
-    QPixmap pix = icon.pixmap(16, 16);
+    QIcon icon(":/icons/resources/icons/right_arrow.png");
+    //QPixmap pix = icon.pixmap(20, 20);
+    QPixmap pix(":/icons/resources/icons/right_arrow.png");
     ui->labelPixmap->setPixmap(pix);
 }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author>Guillaume Denry</author>
  <class>EpisodeWidget</class>
  <widget class="QWidget" name="EpisodeWidget">
   <property name="geometry">
@@ -36,7 +37,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0">
+   <item row="0" column="2">
     <widget class="QLabel" name="labelPixmap">
      <property name="styleSheet">
       <string notr="true">/*QWidget { background-color: rgb(200, 200, 200, 255); }*/
@@ -46,7 +47,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="icons.qrc">:/icons/resources/icon-expand.png</pixmap>
+      <pixmap resource="icons.qrc">:/icons/resources/icons/right_arrow.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -56,11 +57,11 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>1</horstretch>
+       <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
@@ -82,7 +83,20 @@ QLabel:hover {
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="0" column="3">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0" colspan="4">
     <widget class="QWidget" name="widgetSubtitles" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
