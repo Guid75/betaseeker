@@ -115,7 +115,7 @@ border: 1px solid rgba(150, 150, 150, 255);
 </string>
            </property>
            <property name="text">
-            <string>No directory specified for this show season</string>
+            <string>No directory specified for this season</string>
            </property>
            <property name="margin">
             <number>0</number>

@@ -44,7 +44,8 @@ FORMS    += mainwindow.ui \
     subtitlewidget.ui
 
 OTHER_FILES += \
-    TODO.txt
+    TODO.txt \
+    COPYING
 
 RESOURCES += \
     icons.qrc
