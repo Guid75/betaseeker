@@ -20,6 +20,7 @@
 #include <QSqlDatabase>
 #include <QSqlTableModel>
 #include <QDesktopServices>
+#include <QDateTime>
 
 #include "settings.h"
 #include "episodemodel.h"
@@ -98,6 +99,24 @@ void ShowDetailWidget::on_pushButtonForgetIt_clicked()
     ui->widgetSeasonDir->hide();
 }
 
+void ShowDetailWidget::on_pushButtonRefreshSubtitles_clicked()
+{
+    QModelIndex current = ui->listViewEpisodes->currentIndex();
+    if (!current.isValid())
+        return;
+
+    QSqlRecord record = episodeModel->record(current.row());
+    int episode = record.value("episode").toInt();
+
+    // invalidate database last check data and relaunch the request
+    if (tickets.key(episode, -1) != -1)
+        return;
+
+    int ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode);
+    tickets.insert(ticket, episode);
+    LoadingWidget::showLoadingMask(ui->listViewSubtitles);
+}
+
 void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &)
 {
     if (selected.count() == 0)
@@ -107,9 +126,27 @@ void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, con
     int episode = record.value("episode").toInt();
 
     subtitleModel->setFilter(QString("show_id='%1' AND season=%2 AND episode=%3").arg(_showId).arg(_season).arg(episode));
-    int ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode);
-    tickets.insert(ticket, episode);
-    LoadingWidget::showLoadingMask(ui->listViewSubtitles);
+
+    QSqlQuery query;
+    qint64 last_check_epoch = 0;
+    qint64 expiration = 24 * 60 * 60 * 1000; // one day => TODO parametrable
+
+    query.prepare("SELECT subtitles_last_check_date FROM episode WHERE show_id=:show_id AND season=:season AND episode=:episode");
+    query.bindValue(":show_id", _showId);
+    query.bindValue(":season", _season);
+    query.bindValue(":episode", episode);
+    query.exec();
+    if (query.next() && !query.value(0).isNull()) {
+        last_check_epoch = query.value(0).toLongLong() * 1000;
+    }
+    if (QDateTime::currentDateTime().toMSecsSinceEpoch() - last_check_epoch > expiration) {
+        // expired data, we need to launch the request
+        int ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode);
+        tickets.insert(ticket, episode);
+        LoadingWidget::showLoadingMask(ui->listViewSubtitles);
+    } else {
+        subtitleModel->select();
+    }
 }
 
 void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
@@ -143,6 +180,7 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
         int quality = subtitleJson.value("quality").toDouble();
 
         QSqlQuery query;
+        // TODO smash data if already exists
         query.prepare("INSERT INTO subtitle (show_id, season, episode, language, "
                       "source, file, url, quality) "
                       "VALUES (:show_id, :season, :episode, "
@@ -161,8 +199,12 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
     subtitleModel->select();
 
     // update the episodes last check date of the subtitles
-//    QSqlQuery query;
-    //    query.exec(QString("UPDATE show SET episodes_last_check_date=%1 WHERE show_id='%2';").arg(QDateTime::currentMSecsSinceEpoch() / 1000).arg(showId));
+    query.prepare("UPDATE episode SET subtitles_last_check_date=:date WHERE show_id=:show_id AND season=:season AND episode=:episode");
+    query.bindValue(":date", QDateTime::currentMSecsSinceEpoch() / 1000);
+    query.bindValue(":show_id", _showId);
+    query.bindValue(":season", _season);
+    query.bindValue(":episode", episode);
+    query.exec();
 }
 
 bool ShowDetailWidget::eventFilter(QObject *watched, QEvent *event)

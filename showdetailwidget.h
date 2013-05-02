@@ -61,6 +61,7 @@ protected:
 private slots:
     void on_pushButtonDefineIt_clicked();
     void on_pushButtonForgetIt_clicked();
+    void on_pushButtonRefreshSubtitles_clicked();
 
     void currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &);
     void requestFinished(int ticketId, const QByteArray &response);

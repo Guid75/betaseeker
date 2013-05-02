@@ -77,7 +77,7 @@
        <property name="verticalSpacing">
         <number>3</number>
        </property>
-       <item row="1" column="0">
+       <item row="1" column="1">
         <widget class="QComboBox" name="comboBoxSubtitles">
          <item>
           <property name="text">
@@ -86,7 +86,31 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButtonRefreshSubtitles">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Refresh</string>
+         </property>
+         <property name="icon">
+          <iconset resource="icons.qrc">
+           <normaloff>:/icons/resources/icons/refresh.png</normaloff>:/icons/resources/icons/refresh.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QListView" name="listViewSubtitles">
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
         <widget class="QWidget" name="widgetSeasonDir" native="true">
          <property name="enabled">
           <bool>true</bool>
@@ -156,19 +180,14 @@ border: 1px solid rgba(150, 150, 150, 255);
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QListView" name="listViewSubtitles">
-         <property name="mouseTracking">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

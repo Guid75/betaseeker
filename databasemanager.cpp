@@ -62,7 +62,7 @@ int DatabaseManager::openDB()
     query.exec("CREATE TABLE episode "
                "(show_id text, season integer, episode integer, title text, "
                "number text, global integer, date integer, "
-               "comments integer, subtitles_last_check_data integer, PRIMARY KEY (show_id, season, episode))");
+               "comments integer, subtitles_last_check_date integer, PRIMARY KEY (show_id, season, episode))");
 
 //    <subtitle>
 //    <title>Dexter</title>
