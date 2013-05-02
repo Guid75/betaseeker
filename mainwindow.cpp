@@ -90,6 +90,7 @@ void MainWindow::afterShow()
 	showListModel = new QSqlTableModel(this, QSqlDatabase::database());
 	showListModel->setTable("show");
 	showListModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+    showListModel->setSort(showListModel->fieldIndex("title"), Qt::AscendingOrder);
 	showListModel->select();
 	showListModel->setHeaderData(0, Qt::Horizontal, tr("Title"));
 	ui->listViewShows->setModel(showListModel);

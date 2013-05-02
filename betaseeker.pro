@@ -20,12 +20,10 @@ SOURCES += main.cpp\
     databasemanager.cpp \
     showdetailwidget.cpp \
     loadingwidget.cpp \
-    subtitlewidget.cpp \
-    episodewidget.cpp \
-    seasonwidget.cpp \
     settings.cpp \
     episodemodel.cpp \
-    subtitlemodel.cpp
+    subtitlemodel.cpp \
+    linkdelegate.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
@@ -34,18 +32,14 @@ HEADERS  += mainwindow.h \
     databasemanager.h \
     showdetailwidget.h \
     loadingwidget.h \
-    subtitlewidget.h \
-    episodewidget.h \
-    seasonwidget.h \
     settings.h \
     episodemodel.h \
-    subtitlemodel.h
+    subtitlemodel.h \
+    linkdelegate.h
 
 FORMS    += mainwindow.ui \
     showdetailwidget.ui \
-    loadingwidget.ui \
-    episodewidget.ui \
-    subtitlewidget.ui
+    loadingwidget.ui
 
 OTHER_FILES += \
     TODO.txt \

@@ -19,14 +19,15 @@
 #include <QSqlRecord>
 #include <QSqlDatabase>
 #include <QSqlTableModel>
+#include <QDesktopServices>
 
-#include "seasonwidget.h"
 #include "settings.h"
 #include "episodemodel.h"
 #include "jsonparser.h"
 #include "requestmanager.h"
 #include "loadingwidget.h"
 #include "subtitlemodel.h"
+#include "linkdelegate.h"
 
 #include "ui_showdetailwidget.h"
 #include "showdetailwidget.h"
@@ -36,9 +37,6 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     ui(new Ui::ShowDetailWidget)
 {
     ui->setupUi(this);
-
-    seasonWidget = new SeasonWidget;
-    //ui->scrollArea->setWidget(seasonWidget);
 
     episodeModel = new QSqlTableModel(this, QSqlDatabase::database());
     episodeModel->setTable("episode");
@@ -65,6 +63,10 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     ui->listViewSubtitles->setModel(subtitleProxyModel);
     ui->listViewSubtitles->setModelColumn(0);
     ui->listViewSubtitles->setSelectionBehavior(QAbstractItemView::SelectRows);
+    LinkDelegate *linkDelegate = new LinkDelegate;
+    connect(linkDelegate, &LinkDelegate::linkClicked, this, &ShowDetailWidget::linkClicked);
+    ui->listViewSubtitles->setItemDelegate(linkDelegate);
+    ui->listViewSubtitles->installEventFilter(this);
 
     connect(&RequestManager::instance(), &RequestManager::requestFinished,
             this, &ShowDetailWidget::requestFinished);
@@ -74,7 +76,6 @@ void ShowDetailWidget::init(const QString &showId, int season)
 {
     _showId = showId;
 	_season = season;
-    seasonWidget->init(_showId, _season);
 
     episodeModel->setSort(0, Qt::DescendingOrder);
     episodeModel->setFilter(QString("show_id='%1' AND season=%2").arg(_showId).arg(_season));
@@ -161,7 +162,17 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
 
     // update the episodes last check date of the subtitles
 //    QSqlQuery query;
-//    query.exec(QString("UPDATE show SET episodes_last_check_date=%1 WHERE show_id='%2';").arg(QDateTime::currentMSecsSinceEpoch() / 1000).arg(showId));
+    //    query.exec(QString("UPDATE show SET episodes_last_check_date=%1 WHERE show_id='%2';").arg(QDateTime::currentMSecsSinceEpoch() / 1000).arg(showId));
+}
+
+bool ShowDetailWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    // Really UGLY hack, it would be better to delegate this event to the LinkDelegate :/
+    if (watched == ui->listViewSubtitles && event->type() == QEvent::Leave) {
+        if (QApplication::overrideCursor() && QApplication::overrideCursor()->shape() == Qt::PointingHandCursor)
+            QApplication::restoreOverrideCursor();
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void ShowDetailWidget::requestFinished(int ticketId, const QByteArray &response)
@@ -174,4 +185,9 @@ void ShowDetailWidget::requestFinished(int ticketId, const QByteArray &response)
     int episode = tickets[ticketId];
     tickets.remove(ticketId);
     parseSubtitles(episode, response);
+}
+
+void ShowDetailWidget::linkClicked(const QModelIndex &index)
+{
+    QDesktopServices::openUrl(subtitleModel->record(index.row()).value("url").toString());
 }
