@@ -24,9 +24,8 @@ signals:
 public slots:
 
 private:
-    QMap<int,Command*> commands;
-
     static CommandManager *_instance;
+    QMap<int,Command*> commands;
 
     explicit CommandManager(QObject *parent = 0);
     int pushCommand(const QString &url);

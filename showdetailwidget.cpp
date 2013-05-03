@@ -22,6 +22,7 @@
 #include <QDesktopServices>
 #include <QDateTime>
 #include <QUrl>
+#include <QRegularExpression>
 
 #include "settings.h"
 #include "episodemodel.h"
@@ -231,7 +232,21 @@ void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
     parseSubtitles(episode, response);
 }
 
+void ShowDetailWidget::downloadFinished(int ticketId)
+{
+    // TODO notice the end of download to the user
+
+}
+
 void ShowDetailWidget::linkClicked(const QModelIndex &index)
 {
-    QDesktopServices::openUrl(subtitleModel->record(index.row()).value("url").toString());
+    QString url = subtitleModel->record(index.row()).value("url").toString();
+    url.replace(QRegularExpression("^https:"), "http:");
+    qDebug(qPrintable(url));
+    QString dir = Settings::directoryForSeason(_showId, _season);
+    if (dir.isEmpty())
+        dir = QDir::tempPath();
+    DownloadManager::instance().download(subtitleModel->record(index.row()).value("file").toString(),
+                                         url,
+                                         dir);
 }

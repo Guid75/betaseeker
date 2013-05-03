@@ -8,9 +8,18 @@ static const QString websiteUrl = "http://api.betaseries.com";
 class Command
 {
 public:
-
     QByteArray response;
 };
+
+CommandManager *CommandManager::_instance = 0;
+
+CommandManager &CommandManager::instance()
+{
+    if (!_instance)
+        _instance = new CommandManager;
+
+    return *_instance;
+}
 
 CommandManager::CommandManager(QObject *parent) :
     QObject(parent)
@@ -30,25 +39,6 @@ int CommandManager::pushCommand(const QString &url)
     commands.insert(ticket, command);
 
     return ticket;
-}
-
-void CommandManager::requestReadyRead(int ticketId, const QByteArray &response)
-{
-    Command *command = commands[ticketId];
-    if (!command)
-        return; // not for me
-
-    command->response.append(response);
-}
-
-CommandManager *CommandManager::_instance = 0;
-
-CommandManager &CommandManager::instance()
-{
-    if (!_instance)
-        _instance = new CommandManager;
-
-    return *_instance;
 }
 
 int CommandManager::showsSearch(const QString &expression)
@@ -94,6 +84,14 @@ int CommandManager::subtitlesShowByFile(const QString &showId, const QString &fi
     return pushCommand(str);
 }
 
+void CommandManager::requestReadyRead(int ticketId, const QByteArray &response)
+{
+    Command *command = commands[ticketId];
+    if (!command)
+        return; // not for me
+
+    command->response.append(response);
+}
 
 void CommandManager::requestFinished(int ticketId)
 {
