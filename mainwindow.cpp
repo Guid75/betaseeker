@@ -26,7 +26,8 @@
 
 #include "databasemanager.h"
 #include "showmanager.h"
-#include "requestmanager.h"
+//#include "requestmanager.h"
+#include "commandmanager.h"
 #include "jsonparser.h"
 #include "showdetailwidget.h"
 #include "loadingwidget.h"
@@ -49,8 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
 	ui->lineEditSearch->setFocus();
 
-	connect(&RequestManager::instance(), &RequestManager::requestFinished,
-			this, &MainWindow::requestFinished);
+    connect(&CommandManager::instance(), &CommandManager::commandFinished,
+            this, &MainWindow::commandFinished);
 
 	connect(&ShowManager::instance(), &ShowManager::refreshDone,
 			this, &MainWindow::refreshDone);
@@ -114,7 +115,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 	QString value = ui->lineEditSearch->text();
 	if (value.isEmpty())
 		return;
-	searchTicketId = RequestManager::instance().showsSearch(value);
+    searchTicketId = CommandManager::instance().showsSearch(value);
 	killTimer(event->timerId());
 	searchTimerId = 0;
 
@@ -206,7 +207,7 @@ void MainWindow::on_pushButtonUnfollow_clicked()
     // TODO manage error of removeRows
 }
 
-void MainWindow::requestFinished(int ticketId, const QByteArray &response)
+void MainWindow::commandFinished(int ticketId, const QByteArray &response)
 {
 	if (ticketId == searchTicketId)
 		parseSearchResult(response);

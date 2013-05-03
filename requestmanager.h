@@ -21,7 +21,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QUrl>
 #include <QQueue>
 #include <QPair>
 
@@ -42,7 +41,6 @@ public:
 
     int ticketId;
     QNetworkReply *reply;
-    QByteArray response;
 };
 
 class RequestManager : public QObject
@@ -51,13 +49,12 @@ class RequestManager : public QObject
 public:
     static RequestManager &instance();
 
-    int showsSearch(const QString &expression);
-    int showsEpisodes(const QString &url, int season = -1, int episode = -1, bool summary = true, bool hide_notes = true);
-    int subtitlesShow(const QString &showId, int season = -1, int episode = -1, const QString &language = QString());
-    int subtitlesShowByFile(const QString &showId, const QString &fileName, const QString &language = QString());
+    /*! \brief push the request in the waiting queue and returns a ticket id */
+    int pushRequest(const QNetworkRequest &request);
 
 signals:
-    void requestFinished(int ticketId, const QByteArray &reponse);
+    void requestReadyRead(int ticketId, const QByteArray &reponse);
+    void requestFinished(int ticketId);
 
 public slots:
 
@@ -75,8 +72,6 @@ private:
 
     explicit RequestManager(QObject *parent = 0);
 
-    /*! \brief push the request in the waiting queue and returns a ticket id */
-    int pushRequest(const QNetworkRequest &request);
     void animate();
     Request getRequest(QNetworkReply *reply, int *index = 0);
 };

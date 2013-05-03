@@ -44,7 +44,7 @@ private slots:
     void on_tabWidgetSeasons_currentChanged(int index);
     void on_pushButtonUnfollow_clicked();
 
-    void requestFinished(int ticketId, const QByteArray &response);
+    void commandFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
     void refreshDone(const QString &url, ShowManager::Item item);
     void afterShow();

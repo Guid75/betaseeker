@@ -23,7 +23,9 @@ SOURCES += main.cpp\
     settings.cpp \
     episodemodel.cpp \
     subtitlemodel.cpp \
-    linkdelegate.cpp
+    linkdelegate.cpp \
+    commandmanager.cpp \
+    downloadmanager.cpp
 
 HEADERS  += mainwindow.h \
     showmanager.h \
@@ -35,7 +37,9 @@ HEADERS  += mainwindow.h \
     settings.h \
     episodemodel.h \
     subtitlemodel.h \
-    linkdelegate.h
+    linkdelegate.h \
+    commandmanager.h \
+    downloadmanager.h
 
 FORMS    += mainwindow.ui \
     showdetailwidget.ui \

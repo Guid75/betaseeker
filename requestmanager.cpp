@@ -20,8 +20,6 @@
 
 RequestManager *RequestManager::_instance = 0;
 
-static const QString apiKey = "9adb4ab628c6";
-static const QString websiteUrl = "http://api.betaseries.com";
 static const int maxWaitingRequests = 100;
 static const int maxLivingRequests = 3;
 
@@ -36,51 +34,6 @@ RequestManager &RequestManager::instance()
     if (!_instance)
         _instance = new RequestManager();
     return *_instance;
-}
-
-int RequestManager::showsSearch(const QString &expression)
-{
-    QUrl url = QString("%1/shows/search.json?title=%2&key=%3").arg(websiteUrl).arg(expression).arg(apiKey);
-
-    return pushRequest(QNetworkRequest(url));
-}
-
-int RequestManager::showsEpisodes(const QString &url, int season, int episode, bool summary, bool hide_notes)
-{
-    QString str = QString("%1/shows/episodes/%2.json?&key=%3").arg(websiteUrl).arg(url).arg(apiKey);
-
-    if (season >= 0)
-        str.append(QString("&season=%1").arg(season));
-    if (episode >= 0)
-        str.append(QString("&episode=%1").arg(episode));
-    if (summary)
-        str.append("&summary=1");
-    if (hide_notes)
-        str.append("hide_notes=1");
-
-    return pushRequest(QNetworkRequest(QUrl(str)));
-}
-
-int RequestManager::subtitlesShow(const QString &showId, int season, int episode, const QString &language)
-{
-    QString str = QString("%1/subtitles/show/%2.json?&key=%3").arg(websiteUrl).arg(showId).arg(apiKey);
-    if (season >= 0)
-        str.append(QString("&season=%1").arg(season));
-    if (episode >= 0)
-        str.append(QString("&episode=%1").arg(episode));
-    if (!language.isEmpty())
-        str.append(QString("&language=%1").arg(language));
-
-    return pushRequest(QNetworkRequest(QUrl(str)));
-}
-
-int RequestManager::subtitlesShowByFile(const QString &showId, const QString &fileName, const QString &language)
-{
-    QString str = QString("%1/subtitles/show/%2.json?&key=%3&file=%4").arg(websiteUrl).arg(showId).arg(apiKey).arg(fileName);
-    if (!language.isEmpty())
-        str.append(QString("&language=%1").arg(language));
-
-    return pushRequest(QNetworkRequest(QUrl(str)));
 }
 
 int RequestManager::pushRequest(const QNetworkRequest &request)
@@ -137,7 +90,7 @@ void RequestManager::httpFinished()
 
     Q_ASSERT(request.isValid());
 
-    emit requestFinished(request.ticketId, request.response);
+    emit requestFinished(request.ticketId);
 
     currentRequests.removeAt(index);
 
@@ -169,6 +122,7 @@ void RequestManager::httpReadyRead()
 
     Q_ASSERT(request.isValid());
 
-    request.response.append(response);
-    currentRequests[index] = request;
+    emit requestReadyRead(request.ticketId, response);
+/*    request.response.append(response);
+    currentRequests[index] = request;*/
 }

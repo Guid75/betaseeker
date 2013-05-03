@@ -21,11 +21,13 @@
 #include <QSqlTableModel>
 #include <QDesktopServices>
 #include <QDateTime>
+#include <QUrl>
 
 #include "settings.h"
 #include "episodemodel.h"
 #include "jsonparser.h"
-#include "requestmanager.h"
+#include "commandmanager.h"
+#include "downloadmanager.h"
 #include "loadingwidget.h"
 #include "subtitlemodel.h"
 #include "linkdelegate.h"
@@ -69,8 +71,8 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     ui->listViewSubtitles->setItemDelegate(linkDelegate);
     ui->listViewSubtitles->installEventFilter(this);
 
-    connect(&RequestManager::instance(), &RequestManager::requestFinished,
-            this, &ShowDetailWidget::requestFinished);
+    connect(&CommandManager::instance(), &CommandManager::commandFinished,
+            this, &ShowDetailWidget::commandFinished);
 }
 
 void ShowDetailWidget::init(const QString &showId, int season)
@@ -99,7 +101,7 @@ void ShowDetailWidget::on_pushButtonForgetIt_clicked()
     ui->widgetSeasonDir->hide();
 }
 
-void ShowDetailWidget::on_pushButtonRefreshSubtitles_clicked()
+void ShowDetailWidget::on_toolButtonRefreshSubtitles_clicked()
 {
     QModelIndex current = ui->listViewEpisodes->currentIndex();
     if (!current.isValid())
@@ -112,7 +114,7 @@ void ShowDetailWidget::on_pushButtonRefreshSubtitles_clicked()
     if (tickets.key(episode, -1) != -1)
         return;
 
-    int ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode);
+    int ticket = CommandManager::instance().subtitlesShow(_showId, _season, episode);
     tickets.insert(ticket, episode);
     LoadingWidget::showLoadingMask(ui->listViewSubtitles);
 }
@@ -141,7 +143,7 @@ void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, con
     }
     if (QDateTime::currentDateTime().toMSecsSinceEpoch() - last_check_epoch > expiration) {
         // expired data, we need to launch the request
-        int ticket = RequestManager::instance().subtitlesShow(_showId, _season, episode);
+        int ticket = CommandManager::instance().subtitlesShow(_showId, _season, episode);
         tickets.insert(ticket, episode);
         LoadingWidget::showLoadingMask(ui->listViewSubtitles);
     } else {
@@ -217,7 +219,7 @@ bool ShowDetailWidget::eventFilter(QObject *watched, QEvent *event)
     return QWidget::eventFilter(watched, event);
 }
 
-void ShowDetailWidget::requestFinished(int ticketId, const QByteArray &response)
+void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
 {
     if (tickets.find(ticketId) == tickets.end())
         return;

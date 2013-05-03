@@ -57,7 +57,7 @@ private:
     explicit ShowManager();
 
 private slots:
-	void requestFinished(int ticketId, const QByteArray &response);
+    void commandFinished(int ticketId, const QByteArray &response);
 
     // parsing methods
     void parseEpisode(const QString &showId, int season, const QJsonObject &root);

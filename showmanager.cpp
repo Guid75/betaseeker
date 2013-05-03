@@ -18,8 +18,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QDateTime>
+#include <QVariant>
 
-#include "requestmanager.h"
+#include "commandmanager.h"
 #include "jsonparser.h"
 #include "showmanager.h"
 
@@ -35,11 +36,11 @@ ShowManager &ShowManager::instance()
 ShowManager::ShowManager() :
 	QObject()
 {
-    connect(&RequestManager::instance(), &RequestManager::requestFinished,
-			this, &ShowManager::requestFinished);
+    connect(&CommandManager::instance(), &CommandManager::commandFinished,
+            this, &ShowManager::commandFinished);
 }
 
-void ShowManager::requestFinished(int ticketId, const QByteArray &response)
+void ShowManager::commandFinished(int ticketId, const QByteArray &response)
 {
     TicketData ticketData = parsing[ticketId];
     if (ticketData.url.isNull())
@@ -144,7 +145,7 @@ int ShowManager::refreshOnExpired(const QString &showid, Item item)
         }
         if (QDateTime::currentDateTime().toMSecsSinceEpoch() - last_check_epoch > expiration) {
             // expired data, we need to launch the request
-            ticket = RequestManager::instance().showsEpisodes(showid);
+            ticket = CommandManager::instance().showsEpisodes(showid);
             // TODO ticket can be invalid, manage it
             parsing.insert(ticket, TicketData(showid, "parseSeasons", Item_Episodes));
             return 1;
