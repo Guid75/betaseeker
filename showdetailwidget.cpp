@@ -278,7 +278,6 @@ void ShowDetailWidget::linkClicked(const QModelIndex &index)
 {
 	QString url = subtitleModel->record(index.row()).value("url").toString();
 	url.replace(QRegularExpression("^https:"), "http:");
-	qDebug(qPrintable(url));
 	QString dir = Settings::directoryForSeason(_showId, _season);
 	if (dir.isEmpty())
 		dir = QDir::tempPath();
