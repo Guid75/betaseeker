@@ -52,6 +52,7 @@ private:
     EpisodeModel *episodeProxyModel;
     QSqlTableModel *subtitleModel;
     QMap<int, int> tickets;
+	int downloadTicket;
 
     void parseSubtitles(int episode, const QByteArray &response);
 

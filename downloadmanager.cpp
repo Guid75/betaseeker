@@ -47,6 +47,7 @@ int DownloadManager::download(const QString &file, const QString &url, const QSt
         qCritical("Error while opening %s", qPrintable(filePath));
         // TODO manage the file opening error
     }
+	return ticket;
 }
 
 void DownloadManager::requestReadyRead(int ticketId, const QByteArray &response)

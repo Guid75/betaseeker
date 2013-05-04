@@ -54,7 +54,10 @@ OTHER_FILES += \
 RESOURCES += \
     icons.qrc
 
-INCLUDEPATH += $$PWD/../quazip-0.5.1\quazip
+INCLUDEPATH += $$PWD/../quazip-0.5.1/quazip
+DEPENDPATH += $$PWD/../quazip-0.5.1/quazip
 
+win32:LIBS += -L $$PWD/../build-quazip-Qt_static-Release/quazip/release -lquazip
 
-LIBS += -L $$PWD/../build-quazip-Qt_static-Release\quazip\release -lquazip
+unix:!macx: LIBS += -L$$PWD/../build-quazip-Desktop-Release/quazip/ -lquazip -lz
+unix:!macx: PRE_TARGETDEPS += $$PWD/../build-quazip-Desktop-Release/quazip/libquazip.a
