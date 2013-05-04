@@ -24,6 +24,8 @@
 #include <QUrl>
 #include <QRegularExpression>
 
+#include <quazip.h>
+
 #include "settings.h"
 #include "episodemodel.h"
 #include "jsonparser.h"
@@ -40,6 +42,7 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ShowDetailWidget)
 {
+
     ui->setupUi(this);
 
     episodeModel = new QSqlTableModel(this, QSqlDatabase::database());
@@ -74,6 +77,8 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
 
     connect(&CommandManager::instance(), &CommandManager::commandFinished,
             this, &ShowDetailWidget::commandFinished);
+    connect(&DownloadManager::instance(), &DownloadManager::downloadFinished,
+            this, &ShowDetailWidget::downloadFinished);
 }
 
 void ShowDetailWidget::init(const QString &showId, int season)
@@ -232,10 +237,15 @@ void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
     parseSubtitles(episode, response);
 }
 
-void ShowDetailWidget::downloadFinished(int ticketId)
+void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
 {
     // TODO notice the end of download to the user
-
+    qDebug("filePath: %s", qPrintable(filePath));
+    QuaZip quazip(QDir::toNativeSeparators(filePath));
+    if (quazip.open(QuaZip::mdUnzip))
+        qDebug("success");
+    else
+        qDebug("failure");
 }
 
 void ShowDetailWidget::linkClicked(const QModelIndex &index)

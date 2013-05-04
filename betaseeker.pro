@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = betaseeker
 TEMPLATE = app
 
+DEFINES += QUAZIP_STATIC
+
 
 SOURCES += main.cpp\
     mainwindow.cpp \
@@ -51,3 +53,8 @@ OTHER_FILES += \
 
 RESOURCES += \
     icons.qrc
+
+INCLUDEPATH += $$PWD/../quazip-0.5.1\quazip
+
+
+LIBS += -L $$PWD/../build-quazip-Qt_static-Release\quazip\release -lquazip

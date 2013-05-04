@@ -9,7 +9,7 @@
 class Download
 {
 public:
-
+    QString filePath;
     QFile *file;
 };
 
@@ -42,11 +42,11 @@ int DownloadManager::download(const QString &file, const QString &url, const QSt
     downloads.insert(ticket, download);
     QString filePath = QDir(dirPath).filePath(file);
     download->file = new QFile(filePath);
+    download->filePath = filePath;
     if (!download->file->open(QIODevice::WriteOnly)) { // | QIODevice::Text)) {
         qCritical("Error while opening %s", qPrintable(filePath));
         // TODO manage the file opening error
-    } else
-        qDebug("Opening %s...", qPrintable(filePath));
+    }
 }
 
 void DownloadManager::requestReadyRead(int ticketId, const QByteArray &response)
@@ -67,9 +67,9 @@ void DownloadManager::requestFinished(int ticketId)
     if (!download)
         return; // not for me
 
-    emit downloadFinished(ticketId);
-    downloads.remove(ticketId);
     download->file->close();
+    emit downloadFinished(ticketId, download->filePath);
+    downloads.remove(ticketId);
     delete download;
 }
 

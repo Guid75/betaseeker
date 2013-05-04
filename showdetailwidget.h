@@ -65,7 +65,7 @@ private slots:
 
     void currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &);
     void commandFinished(int ticketId, const QByteArray &response);
-    void downloadFinished(int ticketId);
+    void downloadFinished(int ticketId, const QString &filePath);
     void linkClicked(const QModelIndex &index);
 };
 

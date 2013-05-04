@@ -17,7 +17,7 @@ public:
     int download(const QString &fileName, const QString &url, const QString &dirPath);
 
 signals:
-    void downloadFinished(int ticketId);
+    void downloadFinished(int ticketId, const QString &filePath);
 
 public slots:
 
