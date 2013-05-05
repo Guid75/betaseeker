@@ -169,11 +169,11 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
 
 	// remove all subtitles for an episode
 	QSqlQuery query;
-	query.prepare("DELETE FROM subtitle WHERE show_id=:show_id AND season=:season AND episode=:episode");
+    query.prepare("DELETE FROM subtitle WHERE show_id=:show_id AND season=:season AND episode=:episode");
 	query.bindValue(":show_id", _showId);
 	query.bindValue(":season", _season);
 	query.bindValue(":episode", episode);
-	query.exec();
+    query.exec();
 
 	QJsonObject subtitlesJson = parser.root().value("subtitles").toObject();
 	if (subtitlesJson.keys().count() == 0)
@@ -189,7 +189,6 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
 		QString url = subtitleJson.value("url").toString();
 		int quality = subtitleJson.value("quality").toDouble();
 
-		QSqlQuery query;
 		// TODO smash data if already exists
 		query.prepare("INSERT INTO subtitle (show_id, season, episode, language, "
 					  "source, file, url, quality) "
@@ -203,7 +202,34 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
 		query.bindValue(":file", file);
 		query.bindValue(":url", url);
 		query.bindValue(":quality", quality);
-		query.exec();
+        if (!query.exec()) {
+            qCritical("Insertion failed, the subtitle parsing is stopped");
+            break;
+        }
+
+        // content?
+        int subtitleId = query.lastInsertId().toInt();
+
+        QJsonObject contentJson = subtitleJson.value("content").toObject();
+        if (!contentJson.isEmpty()) {
+            // use a QMap to keep all strings ordered as sent by the webserver
+            QMap<int,QString> files;
+            foreach (const QString &key, contentJson.keys()) {
+                QString v = contentJson.value(key).toString();
+                if (!v.isEmpty())
+                    files.insert(key.toInt(), v);
+            }
+
+            QMapIterator<int,QString> i(files);
+            while (i.hasNext()) {
+                i.next();
+                query.prepare("INSERT INTO subtitle_content (subtitle_id, file) "
+                              "VALUES (:subtitle_id, :file)");
+                query.bindValue(":subtitle_id", subtitleId);
+                query.bindValue(":file", i.value());
+                query.exec();
+            }
+        }
 	}
 
 	subtitleModel->select();

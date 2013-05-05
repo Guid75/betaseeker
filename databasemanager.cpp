@@ -50,7 +50,10 @@ int DatabaseManager::openDB()
 
 	// create tables?
 	// TODO: do not create if they exist and if they embed the needed fields
+    // TODO: use ids for all tables
 	QSqlQuery query;
+
+    query.exec("PRAGMA foreign_keys = ON;");
 
     // shows
     query.exec("CREATE TABLE show (show_id text primary key, title text, episodes_last_check_date integer)");
@@ -64,38 +67,18 @@ int DatabaseManager::openDB()
                "number text, global integer, date integer, "
                "comments integer, subtitles_last_check_date integer, PRIMARY KEY (show_id, season, episode))");
 
-//    <subtitle>
-//    <title>Dexter</title>
-//    <season>1</season>
-//    <episode>0</episode>
-//    <language>VF</language>
-//    <source>soustitres</source>
-//    <file>Dexter.S01.DVDRip.SAiNTS.FR.zip</file>
-//    <content>
-//    <item>Dexter.S01E01.Dexter.RETAiL.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E02.Crocodile.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E03.Popping.Cherry.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E04.Lets.Give.The.Boy.A.Hand.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E05.Love.American.Style.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E06.Return.To.Sender.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E07.Circle.Of.Friends.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E08.Shrink.Wrap.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E09.Father.Knows.Best.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E10.Seeing.Red.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E11.Truth.Be.Told.DVDRip.XviD-SAiNTS.srt</item>
-//    <item>Dexter.S01E12.Born.Free.DVDRip.XviD-SAiNTS.srt</item>
-//    <item/>
-//    </content>
-//    <url>https://www.betaseries.com/srt/186083</url>
-//    <quality>5</quality>
-//    </subtitle>
-
     // subtitles
-    // TODO add content which is a list of filenames. How could be store that? Another table?
     query.exec("CREATE TABLE subtitle "
-               "(show_id text, season integer, episode integer, "
+               "(id integer primary key, show_id text, season integer, episode integer, "
                "language text, source text, file text, "
-               "url text, quality integer)");
+               "url text, quality integer, "
+               "UNIQUE (show_id, season, episode, url) ON CONFLICT REPLACE)");
+
+    // subtitles content
+    query.exec("CREATE TABLE subtitle_content "
+               "(subtitle_id integer, file text, "
+               "FOREIGN KEY (subtitle_id) REFERENCES subtitle(id) ON DELETE CASCADE, "
+               "UNIQUE (subtitle_id, file) ON CONFLICT REPLACE)");
 
 	return ret;
 }
