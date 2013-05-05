@@ -32,6 +32,11 @@ LinkDelegate::LinkDelegate(QObject *parent) :
 
 void LinkDelegate::paint(QPainter* painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    if (index.data(Qt::UserRole + 1).toInt() == 0) {
+        QStyledItemDelegate::paint(painter, option, index);
+        return;
+    }
+
     QStyleOptionViewItemV4 opt = option;
     initStyleOption(&opt, index);
 
@@ -60,6 +65,13 @@ bool LinkDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyle
 {
     if ((event->type() != QEvent::MouseMove && event->type() != QEvent::MouseButtonRelease) || !index.isValid())
         return false;
+
+    if (index.data(Qt::UserRole + 1).toInt() == 0) {
+        if (QApplication::overrideCursor() && QApplication::overrideCursor()->shape() == Qt::PointingHandCursor)
+            QApplication::restoreOverrideCursor();
+
+        return false;
+    }
 
     QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
     QRect rect = option.rect;

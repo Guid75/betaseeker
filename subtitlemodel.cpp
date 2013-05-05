@@ -33,7 +33,6 @@ QVariant SubtitleModel::data(const QModelIndex &index, int role) const
         QSqlTableModel *m = qobject_cast<QSqlTableModel*>(sourceModel());
         QSqlRecord rec = m->record(index.row());
         return QString("[%1] %2").arg(rec.value("quality").toInt()).arg(rec.value("file").toString());
-//        return QString("<a href=\"www.lemonde.fr\">[%1] %2</a>").arg(rec.value("quality").toInt()).arg(rec.value("file").toString());
     }
 
     return QVariant();

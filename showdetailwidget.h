@@ -24,6 +24,7 @@ class SubtitlesModel;
 class SeasonWidget;
 class QSqlTableModel;
 class EpisodeModel;
+class QStandardItemModel;
 
 namespace Ui {
 class ShowDetailWidget;
@@ -50,7 +51,8 @@ private:
     SeasonWidget *seasonWidget;
     QSqlTableModel *episodeModel;
     EpisodeModel *episodeProxyModel;
-    QSqlTableModel *subtitleModel;
+    QStandardItemModel *subtitleModel;
+    //QSqlTableModel *subtitleModel;
     QMap<int, int> tickets;
 	int downloadTicket;
 
@@ -58,6 +60,9 @@ private:
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
+
+private:
+    void refreshSubtitleTree(int episode);
 
 private slots:
     void on_pushButtonDefineIt_clicked();

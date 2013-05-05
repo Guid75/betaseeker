@@ -86,13 +86,6 @@
          </item>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QListView" name="listViewSubtitles">
-         <property name="mouseTracking">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QWidget" name="widgetSeasonDir" native="true">
          <property name="enabled">
@@ -178,6 +171,16 @@ border: 1px solid rgba(150, 150, 150, 255);
           <iconset resource="icons.qrc">
            <normaloff>:/icons/resources/icons/refresh.png</normaloff>:/icons/resources/icons/refresh.png</iconset>
          </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QTreeView" name="treeViewSubtitles">
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
       </layout>
