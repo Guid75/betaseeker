@@ -88,7 +88,7 @@ void ShowDetailWidget::init(const QString &showId, int season)
 	_showId = showId;
 	_season = season;
 
-	episodeModel->setSort(0, Qt::DescendingOrder);
+	episodeModel->setSort(episodeModel->fieldIndex("episode"), Qt::DescendingOrder);
 	episodeModel->setFilter(QString("show_id='%1' AND season=%2").arg(_showId).arg(_season));
 	episodeModel->select();
 

@@ -81,7 +81,7 @@
         <widget class="QComboBox" name="comboBoxSubtitles">
          <item>
           <property name="text">
-           <string>All</string>
+           <string>&lt;Unspecified video file&gt;</string>
           </property>
          </item>
         </widget>
