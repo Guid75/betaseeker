@@ -262,6 +262,20 @@ bool ShowDetailWidget::eventFilter(QObject *watched, QEvent *event)
 void ShowDetailWidget::refreshSubtitleTree(int episode)
 {
     QSqlQuery query;
+    query.prepare("SELECT * FROM episode WHERE show_id=:show_id AND season=:season AND episode=:episode");
+    query.bindValue(":show_id", _showId);
+    query.bindValue(":season", _season);
+    query.bindValue(":episode", episode);
+    if (!query.exec()) {
+        qCritical("episode fetch failed!");
+        return;
+    }
+
+    QSqlRecord epRecord;
+
+    if (query.next())
+        epRecord = query.record();
+
     query.prepare("SELECT * FROM subtitle WHERE show_id=:show_id AND season=:season AND episode=:episode");
     query.bindValue(":show_id", _showId);
     query.bindValue(":season", _season);
@@ -279,7 +293,7 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
     automaticRoot->setEditable(false);
     parentItem->appendRow(automaticRoot);
 
-    QStandardItem *allRoot = new QStandardItem(tr("All subtitles for the current episode"));
+    QStandardItem *allRoot = new QStandardItem(tr("All subtitles for Episode %1 (%2)").arg(epRecord.value("episode").toInt()).arg(epRecord.value("title").toString()));
     allRoot->setEditable(false);
     parentItem->appendRow(allRoot);
 
@@ -298,7 +312,7 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         while (subtitleQuery.next()) {
             QStandardItem *contentItem = new QStandardItem(subtitleQuery.value("file").toString());
             contentItem->setData(2);
-            subtitleItem->setData(subtitleQuery.value("file"), Qt::UserRole + 2);
+            contentItem->setData(subtitleQuery.value("file"), Qt::UserRole + 2);
             contentItem->setEditable(false);
             subtitleItem->appendRow(contentItem);
         }
@@ -330,7 +344,7 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
     // TODO notice the end of download to the user
     QuaZip quazip(QDir::toNativeSeparators(filePath));
     if (!quazip.open(QuaZip::mdUnzip)) {
-        qDebug("failure");
+        qDebug("Cannot open the zip archive");
         return;
     }
 
@@ -342,7 +356,10 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
         QFile outFile(dir.filePath(quazip.getCurrentFileName()));
         outFile.open(QFile::WriteOnly);
 
-        file.open(QIODevice::ReadOnly);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qCritical("Cannot open the file inside the zip");
+            continue;
+        }
 
         QByteArray bArray = file.readAll();
 
