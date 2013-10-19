@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QVariant>
 
 class Download;
 
@@ -14,10 +15,10 @@ public:
     
     /*! \brief Schedule a file downloading
      */
-    int download(const QString &fileName, const QString &url, const QString &dirPath);
+    int download(const QString &fileName, const QString &url, const QString &dirPath, const QVariant &userData = QVariant());
 
 signals:
-    void downloadFinished(int ticketId, const QString &filePath);
+    void downloadFinished(int ticketId, const QString &filePath, const QVariant &userData);
 
 public slots:
 

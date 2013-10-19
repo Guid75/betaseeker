@@ -334,12 +334,18 @@ void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
     parseSubtitles(episode, response);
 }
 
-void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
+void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, const QVariant &userData)
 {
     if (ticketId != downloadTicket)
         return;
 
     downloadTicket = -1;
+
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.suffix().compare("zip", Qt::CaseInsensitive) != 0) {
+        // not a zip
+        return;
+    }
 
     // TODO notice the end of download to the user
     QuaZip quazip(QDir::toNativeSeparators(filePath));
@@ -348,11 +354,17 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
         return;
     }
 
+    QString onlyFilePath = userData.toString();
+
     QuaZipFile zipFile(&quazip);
 
     QDir dir = QFileInfo(filePath).absoluteDir();
 
     for (bool f = quazip.goToFirstFile(); f; f = quazip.goToNextFile()) {
+        qDebug("%s VS %s", qPrintable(quazip.getCurrentFileName()), qPrintable(onlyFilePath));
+        if (!onlyFilePath.isEmpty() && quazip.getCurrentFileName() != onlyFilePath)
+            continue;
+
         QFile outFile(dir.filePath(quazip.getCurrentFileName()));
         outFile.open(QFile::WriteOnly);
 
@@ -372,6 +384,7 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
     quazip.close();
 
     // we don't need the zip file anymore
+    // TODO: improvment: zip must stay persistent until the program extinction
     QFile file(filePath);
     if (!file.remove()) {
         qCritical("Cannot remove %s", qPrintable(filePath));
@@ -383,8 +396,11 @@ void ShowDetailWidget::linkClicked(const QModelIndex &index)
 {
     QStandardItem *item = subtitleModel->itemFromIndex(index);
 
-    if (index.data(Qt::UserRole + 1).toInt() == 2)
+    QVariant userData;
+    if (index.data(Qt::UserRole + 1).toInt() == 2) {
+        userData = QVariant(item->data(Qt::UserRole + 2).toString());
         item = item->parent();
+    }
 
     QString file = item->data(Qt::UserRole + 2).toString();
     QString url = item->data(Qt::UserRole + 3).toString();
@@ -392,5 +408,5 @@ void ShowDetailWidget::linkClicked(const QModelIndex &index)
     QString dir = Settings::directoryForSeason(_showId, _season);
     if (dir.isEmpty())
         dir = QDir::tempPath();
-    downloadTicket = DownloadManager::instance().download(file, url, dir);
+    downloadTicket = DownloadManager::instance().download(file, url, dir, userData);
 }

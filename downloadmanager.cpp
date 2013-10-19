@@ -11,6 +11,7 @@ class Download
 public:
     QString filePath;
     QFile *file;
+    QVariant userData;
 };
 
 DownloadManager *DownloadManager::_instance = 0;
@@ -32,7 +33,7 @@ DownloadManager::DownloadManager(QObject *parent) :
             this, &DownloadManager::requestFinished);
 }
 
-int DownloadManager::download(const QString &file, const QString &url, const QString &dirPath)
+int DownloadManager::download(const QString &file, const QString &url, const QString &dirPath, const QVariant &userData)
 {
     int ticket = RequestManager::instance().pushRequest(QNetworkRequest(url));
     if (ticket == -1)
@@ -43,6 +44,7 @@ int DownloadManager::download(const QString &file, const QString &url, const QSt
     QString filePath = QDir(dirPath).filePath(file);
     download->file = new QFile(filePath);
     download->filePath = filePath;
+    download->userData = userData;
     if (!download->file->open(QIODevice::WriteOnly)) {
         qCritical("Error while opening %s", qPrintable(filePath));
         // TODO manage the file opening error
@@ -69,7 +71,7 @@ void DownloadManager::requestFinished(int ticketId)
         return; // not for me
 
     download->file->close();
-    emit downloadFinished(ticketId, download->filePath);
+    emit downloadFinished(ticketId, download->filePath, download->userData);
     downloads.remove(ticketId);
     delete download;
 }
