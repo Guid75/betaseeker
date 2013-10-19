@@ -19,12 +19,12 @@
 
 #include "episodemodel.h"
 
-EpisodeModel::EpisodeModel(QObject *parent) :
+SeasonListModel::SeasonListModel(QObject *parent) :
     QIdentityProxyModel(parent)
 {
 }
 
-QVariant EpisodeModel::data(const QModelIndex &index, int role) const
+QVariant SeasonListModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole)
       return QIdentityProxyModel::data(index, role);
@@ -38,7 +38,7 @@ QVariant EpisodeModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-Qt::ItemFlags EpisodeModel::flags(const QModelIndex &) const
+Qt::ItemFlags SeasonListModel::flags(const QModelIndex &) const
 {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }

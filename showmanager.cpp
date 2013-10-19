@@ -24,23 +24,23 @@
 #include "jsonparser.h"
 #include "showmanager.h"
 
-ShowManager *ShowManager::_instance = 0;
+Cache *Cache::_instance = 0;
 
-ShowManager &ShowManager::instance()
+Cache &Cache::instance()
 {
 	if (!_instance)
-		_instance = new ShowManager();
+		_instance = new Cache();
 	return *_instance;
 }
 
-ShowManager::ShowManager() :
+Cache::Cache() :
 	QObject()
 {
     connect(&CommandManager::instance(), &CommandManager::commandFinished,
-            this, &ShowManager::commandFinished);
+            this, &Cache::commandFinished);
 }
 
-void ShowManager::commandFinished(int ticketId, const QByteArray &response)
+void Cache::commandFinished(int ticketId, const QByteArray &response)
 {
     TicketData ticketData = parsing[ticketId];
     if (ticketData.url.isNull())
@@ -54,7 +54,7 @@ void ShowManager::commandFinished(int ticketId, const QByteArray &response)
     emit refreshDone(ticketData.url, ticketData.showItem);
 }
 
-void ShowManager::parseEpisode(const QString &showId, int season, const QJsonObject &root)
+void Cache::parseEpisode(const QString &showId, int season, const QJsonObject &root)
 {
     bool ok;
     int episode = root.value("episode").toString().toInt(&ok);
@@ -80,7 +80,7 @@ void ShowManager::parseEpisode(const QString &showId, int season, const QJsonObj
     query.exec();
 }
 
-void ShowManager::parseEpisodes(const QString &showId, int season, const QJsonObject &root)
+void Cache::parseEpisodes(const QString &showId, int season, const QJsonObject &root)
 {
     QJsonObject episodesJson = root.value("episodes").toObject();
     foreach (const QString &key, episodesJson.keys()) {
@@ -91,7 +91,7 @@ void ShowManager::parseEpisodes(const QString &showId, int season, const QJsonOb
     }
 }
 
-void ShowManager::parseSeasons(const QString &showId, const QByteArray &response)
+void Cache::parseSeasons(const QString &showId, const QByteArray &response)
 {
 	JsonParser parser(response);
     if (!parser.isValid()) {
@@ -129,7 +129,7 @@ void ShowManager::parseSeasons(const QString &showId, const QByteArray &response
     query.exec();
 }
 
-int ShowManager::refreshOnExpired(const QString &showid, Item item)
+int Cache::refreshOnExpired(const QString &showid, Item item)
 {
     QSqlQuery query;
     qint64 last_check_epoch = 0;

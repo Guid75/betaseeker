@@ -52,7 +52,7 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     episodeModel->setTable("episode");
     episodeModel->setEditStrategy(QSqlTableModel::OnFieldChange); // probably not necessary since we don't modify table here
 
-    episodeProxyModel = new EpisodeModel(this);
+	episodeProxyModel = new SeasonListModel(this);
     episodeProxyModel->setSourceModel(episodeModel);
 
     ui->listViewEpisodes->setModel(episodeProxyModel);
@@ -348,7 +348,7 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
         return;
     }
 
-    QuaZipFile file(&quazip);
+    QuaZipFile zipFile(&quazip);
 
     QDir dir = QFileInfo(filePath).absoluteDir();
 
@@ -356,20 +356,27 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath)
         QFile outFile(dir.filePath(quazip.getCurrentFileName()));
         outFile.open(QFile::WriteOnly);
 
-        if (!file.open(QIODevice::ReadOnly)) {
+        if (!zipFile.open(QIODevice::ReadOnly)) {
             qCritical("Cannot open the file inside the zip");
             continue;
         }
 
-        QByteArray bArray = file.readAll();
+        QByteArray bArray = zipFile.readAll();
 
         outFile.write(bArray);
         outFile.close();
 
-        file.close();
+        zipFile.close();
     }
 
     quazip.close();
+
+    // we don't need the zip file anymore
+    QFile file(filePath);
+    if (!file.remove()) {
+        qCritical("Cannot remove %s", qPrintable(filePath));
+        return;
+    }
 }
 
 void ShowDetailWidget::linkClicked(const QModelIndex &index)

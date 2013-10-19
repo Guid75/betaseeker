@@ -43,7 +43,7 @@ int DownloadManager::download(const QString &file, const QString &url, const QSt
     QString filePath = QDir(dirPath).filePath(file);
     download->file = new QFile(filePath);
     download->filePath = filePath;
-    if (!download->file->open(QIODevice::WriteOnly)) { // | QIODevice::Text)) {
+    if (!download->file->open(QIODevice::WriteOnly)) {
         qCritical("Error while opening %s", qPrintable(filePath));
         // TODO manage the file opening error
     }

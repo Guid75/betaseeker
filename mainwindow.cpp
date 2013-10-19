@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&CommandManager::instance(), &CommandManager::commandFinished,
             this, &MainWindow::commandFinished);
 
-	connect(&ShowManager::instance(), &ShowManager::refreshDone,
+	connect(&Cache::instance(), &Cache::refreshDone,
 			this, &MainWindow::refreshDone);
 
 	QTimer::singleShot(0, Qt::CoarseTimer, this, SLOT(afterShow()));
@@ -223,7 +223,7 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
     // TODO we must check is a request is running yet for the current show and show the loading box in this case
 
     LoadingWidget::hideLoadingMask(ui->tabWidgetSeasons);
-    switch (ShowManager::instance().refreshOnExpired(record.value("show_id").toString(), ShowManager::Item_Episodes)) {
+    switch (Cache::instance().refreshOnExpired(record.value("show_id").toString(), Cache::Item_Episodes)) {
     case 0:
         clearShowDetails();
         refreshShowDetails();
@@ -239,12 +239,12 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
     }
 }
 
-void MainWindow::refreshDone(const QString &url, ShowManager::Item item)
+void MainWindow::refreshDone(const QString &url, Cache::Item item)
 {
     if (url != getCurrentShowUrl())
         return;
 
-    if (item == ShowManager::Item_Episodes)
+    if (item == Cache::Item_Episodes)
         LoadingWidget::hideLoadingMask(ui->tabWidgetSeasons);
         ui->tabWidgetSeasons->setDisabled(false);
         refreshShowDetails();

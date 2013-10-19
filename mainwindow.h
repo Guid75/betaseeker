@@ -46,7 +46,7 @@ private slots:
 
     void commandFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);
-    void refreshDone(const QString &url, ShowManager::Item item);
+    void refreshDone(const QString &url, Cache::Item item);
     void afterShow();
 
 private:

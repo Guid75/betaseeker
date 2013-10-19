@@ -19,11 +19,11 @@
 
 #include <QIdentityProxyModel>
 
-class EpisodeModel : public QIdentityProxyModel
+class SeasonListModel : public QIdentityProxyModel
 {
     Q_OBJECT
 public:
-    explicit EpisodeModel(QObject *parent = 0);
+    explicit SeasonListModel(QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role) const;
     Qt::ItemFlags flags(const QModelIndex &) const;

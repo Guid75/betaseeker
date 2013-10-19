@@ -23,7 +23,7 @@
 class SubtitlesModel;
 class SeasonWidget;
 class QSqlTableModel;
-class EpisodeModel;
+class SeasonListModel;
 class QStandardItemModel;
 
 namespace Ui {
@@ -50,7 +50,7 @@ private:
     SubtitlesModel *subtitlesModel;
     SeasonWidget *seasonWidget;
     QSqlTableModel *episodeModel;
-    EpisodeModel *episodeProxyModel;
+    SeasonListModel *episodeProxyModel;
     QStandardItemModel *subtitleModel;
     //QSqlTableModel *subtitleModel;
     QMap<int, int> tickets;

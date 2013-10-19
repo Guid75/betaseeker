@@ -20,7 +20,7 @@
 #include <QObject>
 #include <QHash>
 
-class ShowManager : public QObject
+class Cache : public QObject
 {
 	Q_OBJECT
 public:
@@ -29,7 +29,7 @@ public:
         Item_Subtitles
     };
 
-    static ShowManager &instance();
+    static Cache &instance();
 
     /*! \brief If a show item is expired, reload it from the website
      * \retval 0 if the show item is still fresh
@@ -51,10 +51,10 @@ private:
         Item showItem;
     };
 
-	static ShowManager *_instance;
+	static Cache *_instance;
     QHash<int,TicketData> parsing;
 
-    explicit ShowManager();
+    explicit Cache();
 
 private slots:
     void commandFinished(int ticketId, const QByteArray &response);
