@@ -328,7 +328,12 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
             contentItem->setData(query.value("file"), Qt::UserRole + 4);
             allRoot->appendRow(contentItem);
         } else {
-            QStandardItem *subtitleItem = new QStandardItem(tr("%1 (%2 files)").arg(query.value("file").toString()).arg(children.count()));
+            QString caption;
+            if (children.count() > 0)
+                caption = tr("%1 (%2 files)").arg(query.value("file").toString()).arg(children.count());
+            else
+                caption = query.value("file").toString();
+            QStandardItem *subtitleItem = new QStandardItem(caption);
             subtitleItem->setData(subtitleZipNode);
             subtitleItem->setData(query.value("file"), Qt::UserRole + 2);
             subtitleItem->setData(query.value("url"), Qt::UserRole + 3);

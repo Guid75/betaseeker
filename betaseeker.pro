@@ -57,7 +57,7 @@ RESOURCES += \
 INCLUDEPATH += $$PWD/../quazip-0.5.1/quazip
 DEPENDPATH += $$PWD/../quazip-0.5.1/quazip
 
-win32:LIBS += -L $$PWD/../build-quazip-Qt_static-Release/quazip/release -lquazip
+win32:LIBS += -L $$PWD/../build-quazip-Desktop_Qt_5_1_0_MinGW_32bit-Release/quazip/release -lquazip -lz
 
-unix:!macx: LIBS += -L$$PWD/../build-quazip-Desktop-Release/quazip/ -lquazip -lz
-unix:!macx: PRE_TARGETDEPS += $$PWD/../build-quazip-Desktop-Release/quazip/libquazip.a
+unix:!macx: LIBS += -L$$PWD/../build-quazip-Desktop_Qt_5_1_0_MinGW_32bit-Release/quazip/ -lquazip -lz
+unix:!macx: PRE_TARGETDEPS += $$PWD/../build-quazip-Desktop_Qt_5_1_0_MinGW_32bit-Release/quazip/libquazip.a
