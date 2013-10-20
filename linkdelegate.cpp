@@ -56,6 +56,8 @@ void LinkDelegate::paint(QPainter* painter, const QStyleOptionViewItem &option, 
     QFont font = painter->font();
     font.setUnderline(opt.state & QStyle::State_MouseOver);
 
+    text = elidedText(painter->fontMetrics(), rect.width(), option.textElideMode, text);
+
     painter->setFont(font);
     painter->drawText(QRect(rect.left(), rect.top(), rect.width(), rect.height()),
                       opt.displayAlignment, text);
