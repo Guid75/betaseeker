@@ -420,6 +420,11 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
 
 void ShowDetailWidget::linkClicked(const QModelIndex &index)
 {
+    // is there a reception directory for those subtitle(s)?
+    QString dir = Settings::directoryForSeason(_showId, _season);
+    if (dir.isEmpty())
+        on_pushButtonDefineIt_clicked();
+
     QStandardItem *item = subtitleModel->itemFromIndex(index);
 
     QVariant userData;
@@ -439,7 +444,7 @@ void ShowDetailWidget::linkClicked(const QModelIndex &index)
     }
 
     url.replace(QRegularExpression("^https:"), "http:");
-    QString dir = Settings::directoryForSeason(_showId, _season);
+    dir = Settings::directoryForSeason(_showId, _season);
     if (dir.isEmpty())
         dir = QDir::tempPath();
     downloadTicket = DownloadManager::instance().download(file, url, dir, userData);
