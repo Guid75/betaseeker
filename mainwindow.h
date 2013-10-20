@@ -49,6 +49,9 @@ private slots:
     void refreshDone(const QString &url, Cache::Item item);
     void afterShow();
 
+    void resizeEvent(QResizeEvent *event);
+    void changeEvent(QEvent *event);
+
 private:
 	Ui::MainWindow *ui;
     int searchTicketId;

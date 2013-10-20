@@ -18,12 +18,16 @@
 #define SETTINGS_H
 
 #include <QString>
+#include <QSize>
 
 namespace Settings {
 
 QString directoryForSeason(const QString &showId, int season);
 void setDirectoryForSeason(const QString &showId, int season, const QString &filePath);
-
+QSize mainWindowSize();
+void setMainWindowSize(const QSize &size);
+bool mainWindowMaximized();
+void setMainWindowMaximized(bool maximized);
 }
 
 #endif // SETTINGS_H

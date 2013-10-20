@@ -38,4 +38,33 @@ void setDirectoryForSeason(const QString &showId, int season, const QString &fil
     settings.setValue(QString("shows/%1/season%2/filepath").arg(showId).arg(season), filePath);
 }
 
+QSize mainWindowSize()
+{
+    DEFINE_SETTINGS;
+
+    QSize defaultSize(-1, -1);
+    return settings.value("mainWindow/size", defaultSize).toSize();
+}
+
+void setMainWindowSize(const QSize &size)
+{
+    DEFINE_SETTINGS;
+
+    settings.setValue("mainWindow/size", size);
+}
+
+bool mainWindowMaximized()
+{
+    DEFINE_SETTINGS;
+
+    return settings.value("mainWindow/maximized", false).toBool();
+}
+
+void setMainWindowMaximized(bool maximized)
+{
+    DEFINE_SETTINGS;
+
+    settings.setValue("mainWindow/maximized", maximized);
+}
+
 }

@@ -23,6 +23,7 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QMessageBox>
+#include <QResizeEvent>
 
 #include "databasemanager.h"
 #include "showmanager.h"
@@ -57,6 +58,12 @@ MainWindow::MainWindow(QWidget *parent) :
 			this, &MainWindow::refreshDone);
 
 	QTimer::singleShot(0, Qt::CoarseTimer, this, SLOT(afterShow()));
+
+    QSize settingsSize = Settings::mainWindowSize();
+    if (settingsSize.width() >= 0)
+        resize(settingsSize);
+    if (Settings::mainWindowMaximized())
+        setWindowState(Qt::WindowMaximized);
 }
 
 MainWindow::~MainWindow()
@@ -99,7 +106,20 @@ void MainWindow::afterShow()
 	ui->listViewShows->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
-			this, &MainWindow::currentShowChanged);
+            this, &MainWindow::currentShowChanged);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    Settings::setMainWindowSize(event->size());
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::WindowStateChange) {
+        QWindowStateChangeEvent *wsEvent = dynamic_cast<QWindowStateChangeEvent*>(event);
+        Settings::setMainWindowMaximized(windowState() == Qt::WindowMaximized);
+    }
 }
 
 void MainWindow::loadSettings()
