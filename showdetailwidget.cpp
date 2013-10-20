@@ -40,6 +40,12 @@
 #include "ui_showdetailwidget.h"
 #include "showdetailwidget.h"
 
+namespace {
+    const int subtitleZipNode         = 1;
+    const int subtitleZipChildNode    = 2;
+    const int subtitleMergedChildNode = 3;
+}
+
 ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ShowDetailWidget),
@@ -298,23 +304,39 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
     parentItem->appendRow(allRoot);
 
     while (query.next()) {
-        QStandardItem *subtitleItem = new QStandardItem(query.value("file").toString());
-        subtitleItem->setData(1);
-        subtitleItem->setData(query.value("file"), Qt::UserRole + 2);
-        subtitleItem->setData(query.value("url"), Qt::UserRole + 3);
-        subtitleItem->setEditable(false);
-        allRoot->appendRow(subtitleItem);
-
         QSqlQuery subtitleQuery;
         subtitleQuery.prepare("SELECT * from subtitle_content WHERE subtitle_id=:subtitle_id");
         subtitleQuery.bindValue(":subtitle_id", query.value("id"));
         subtitleQuery.exec();
+        QList<QStandardItem*> children;
+        QStandardItem *contentItem;
         while (subtitleQuery.next()) {
-            QStandardItem *contentItem = new QStandardItem(subtitleQuery.value("file").toString());
-            contentItem->setData(2);
+            contentItem = new QStandardItem(subtitleQuery.value("file").toString());
+            contentItem->setData(subtitleZipChildNode);
             contentItem->setData(subtitleQuery.value("file"), Qt::UserRole + 2);
             contentItem->setEditable(false);
-            subtitleItem->appendRow(contentItem);
+            children << contentItem;
+            //subtitleItem->appendRow(contentItem);
+        }
+
+        if (children.count() == 1) {
+            // only one child? no need to make subnodes, this only child become the content root node
+            contentItem = children[0];
+            contentItem->setText(tr("%1 [zipped]").arg(contentItem->data(Qt::UserRole + 2).toString()));
+            contentItem->setData(subtitleMergedChildNode);
+            contentItem->setData(query.value("url"), Qt::UserRole + 3);
+            contentItem->setData(query.value("file"), Qt::UserRole + 4);
+            allRoot->appendRow(contentItem);
+        } else {
+            QStandardItem *subtitleItem = new QStandardItem(tr("%1 (%2 files)").arg(query.value("file").toString()).arg(children.count()));
+            subtitleItem->setData(subtitleZipNode);
+            subtitleItem->setData(query.value("file"), Qt::UserRole + 2);
+            subtitleItem->setData(query.value("url"), Qt::UserRole + 3);
+            subtitleItem->setEditable(false);
+            allRoot->appendRow(subtitleItem);
+            foreach (QStandardItem *contentItem, children) {
+                subtitleItem->appendRow(contentItem);
+            }
         }
     }
 
@@ -396,13 +418,21 @@ void ShowDetailWidget::linkClicked(const QModelIndex &index)
     QStandardItem *item = subtitleModel->itemFromIndex(index);
 
     QVariant userData;
-    if (index.data(Qt::UserRole + 1).toInt() == 2) {
+    QString file, url;
+    if (index.data(Qt::UserRole + 1).toInt() == subtitleZipChildNode) {
         userData = QVariant(item->data(Qt::UserRole + 2).toString());
         item = item->parent();
+        file = item->data(Qt::UserRole + 2).toString();
+        url = item->data(Qt::UserRole + 3).toString();
+    } else if (index.data(Qt::UserRole + 1).toInt() == subtitleMergedChildNode) {
+        userData = QVariant(item->data(Qt::UserRole + 2).toString());
+        file = item->data(Qt::UserRole + 4).toString();
+        url = item->data(Qt::UserRole + 3).toString();
+    } else {
+        file = item->data(Qt::UserRole + 2).toString();
+        url = item->data(Qt::UserRole + 3).toString();
     }
 
-    QString file = item->data(Qt::UserRole + 2).toString();
-    QString url = item->data(Qt::UserRole + 3).toString();
     url.replace(QRegularExpression("^https:"), "http:");
     QString dir = Settings::directoryForSeason(_showId, _season);
     if (dir.isEmpty())
