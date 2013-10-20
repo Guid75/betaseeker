@@ -361,7 +361,6 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
     QDir dir = QFileInfo(filePath).absoluteDir();
 
     for (bool f = quazip.goToFirstFile(); f; f = quazip.goToNextFile()) {
-        qDebug("%s VS %s", qPrintable(quazip.getCurrentFileName()), qPrintable(onlyFilePath));
         if (!onlyFilePath.isEmpty() && quazip.getCurrentFileName() != onlyFilePath)
             continue;
 
