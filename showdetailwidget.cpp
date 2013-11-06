@@ -262,6 +262,11 @@ bool ShowDetailWidget::eventFilter(QObject *watched, QEvent *event)
     return QWidget::eventFilter(watched, event);
 }
 
+bool qualityLessThan(QStandardItem *item1, QStandardItem *item2)
+{
+    return item1->data(Qt::UserRole + 5).toInt() > item2->data(Qt::UserRole + 5).toInt();
+}
+
 void ShowDetailWidget::refreshSubtitleTree(int episode)
 {
     QSqlQuery query;
@@ -301,6 +306,7 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
     parentItem->appendRow(allRoot);
 
     QMap<QString,QStandardItem*> langNodes;
+    QMap<QString,QList<QStandardItem*> > langItems;
 
     while (query.next()) {
         QString lang = query.value("language").toString();
@@ -308,7 +314,9 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         if (!langNode) {
             langNode = new QStandardItem(lang);
             langNodes.insert(lang, langNode);
+            langItems.insert(lang, QList<QStandardItem*>());
         }
+        QList<QStandardItem*> &items = langItems[lang];
 
         QSqlQuery subtitleQuery;
         subtitleQuery.prepare("SELECT * from subtitle_content WHERE subtitle_id=:subtitle_id");
@@ -327,23 +335,27 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         if (children.count() == 1) {
             // only one child? no need to make subnodes, this only child become the content root node
             contentItem = children[0];
-            contentItem->setText(tr("%1 [zipped]").arg(contentItem->data(Qt::UserRole + 2).toString()));
+            contentItem->setText(tr("[%1] %2 [zipped]").arg(query.value("quality").toString()).arg(contentItem->data(Qt::UserRole + 2).toString()));
             contentItem->setData(subtitleMergedChildNode);
             contentItem->setData(query.value("url"), Qt::UserRole + 3);
             contentItem->setData(query.value("file"), Qt::UserRole + 4);
-            langNode->appendRow(contentItem);
+            contentItem->setData(query.value("quality"), Qt::UserRole + 5);
+            items << contentItem;
+//            langNode->appendRow(contentItem);
         } else {
             QString caption;
             if (children.count() > 0)
-                caption = tr("%1 (%2 files)").arg(query.value("file").toString()).arg(children.count());
+                caption = tr("[%1] %2 (%3 files)").arg(query.value("quality").toString()).arg(query.value("file").toString()).arg(children.count());
             else
-                caption = QString("%1").arg(query.value("file").toString()).arg(query.value("language").toString());
+                caption = QString("[%1] %2").arg(query.value("quality").toString()).arg(query.value("file").toString());
             QStandardItem *subtitleItem = new QStandardItem(caption);
             subtitleItem->setData(subtitleZipNode);
             subtitleItem->setData(query.value("file"), Qt::UserRole + 2);
             subtitleItem->setData(query.value("url"), Qt::UserRole + 3);
+            subtitleItem->setData(query.value("quality"), Qt::UserRole + 5);
             subtitleItem->setEditable(false);
-            langNode->appendRow(subtitleItem);
+            items << subtitleItem;
+//            langNode->appendRow(subtitleItem);
             foreach (QStandardItem *contentItem, children) {
                 subtitleItem->appendRow(contentItem);
             }
@@ -354,6 +366,13 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
     QMap<QString, QStandardItem*>::const_iterator i = langNodes.constBegin();
     while (i != langNodes.constEnd()) {
         QStandardItem *node = i.value();
+
+        // add all subtitles
+        QList<QStandardItem*> &items = langItems[i.key()];
+        qSort(items.begin(), items.end(), qualityLessThan);
+        foreach (QStandardItem *item, items)
+            node->appendRow(item);
+
         allRoot->appendRow(node);
         ui->treeViewSubtitles->expand(node->index());
         node->setText(tr("%1 (%2 files)").arg(i.key()).arg(node->rowCount()));
