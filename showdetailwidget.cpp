@@ -146,8 +146,6 @@ void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, con
     QSqlRecord record = episodeModel->record(selected.indexes()[0].row());
     int episode = record.value("episode").toInt();
 
-    //	subtitleModel->setFilter(QString("show_id='%1' AND season=%2 AND episode=%3").arg(_showId).arg(_season).arg(episode));
-
     QSqlQuery query;
     qint64 last_check_epoch = 0;
     qint64 expiration = 24 * 60 * 60 * 1000; // one day => TODO parametrable
@@ -167,7 +165,6 @@ void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, con
         LoadingWidget::showLoadingMask(ui->treeViewSubtitles);
     } else {
         refreshSubtitleTree(episode);
-        //		subtitleModel->select();
     }
 }
 
@@ -303,7 +300,16 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
     allRoot->setEditable(false);
     parentItem->appendRow(allRoot);
 
+    QMap<QString,QStandardItem*> langNodes;
+
     while (query.next()) {
+        QString lang = query.value("language").toString();
+        QStandardItem *langNode = langNodes[lang];
+        if (!langNode) {
+            langNode = new QStandardItem(lang);
+            langNodes.insert(lang, langNode);
+        }
+
         QSqlQuery subtitleQuery;
         subtitleQuery.prepare("SELECT * from subtitle_content WHERE subtitle_id=:subtitle_id");
         subtitleQuery.bindValue(":subtitle_id", query.value("id"));
@@ -316,7 +322,6 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
             contentItem->setData(subtitleQuery.value("file"), Qt::UserRole + 2);
             contentItem->setEditable(false);
             children << contentItem;
-            //subtitleItem->appendRow(contentItem);
         }
 
         if (children.count() == 1) {
@@ -326,23 +331,33 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
             contentItem->setData(subtitleMergedChildNode);
             contentItem->setData(query.value("url"), Qt::UserRole + 3);
             contentItem->setData(query.value("file"), Qt::UserRole + 4);
-            allRoot->appendRow(contentItem);
+            langNode->appendRow(contentItem);
         } else {
             QString caption;
             if (children.count() > 0)
                 caption = tr("%1 (%2 files)").arg(query.value("file").toString()).arg(children.count());
             else
-                caption = query.value("file").toString();
+                caption = QString("%1").arg(query.value("file").toString()).arg(query.value("language").toString());
             QStandardItem *subtitleItem = new QStandardItem(caption);
             subtitleItem->setData(subtitleZipNode);
             subtitleItem->setData(query.value("file"), Qt::UserRole + 2);
             subtitleItem->setData(query.value("url"), Qt::UserRole + 3);
             subtitleItem->setEditable(false);
-            allRoot->appendRow(subtitleItem);
+            langNode->appendRow(subtitleItem);
             foreach (QStandardItem *contentItem, children) {
                 subtitleItem->appendRow(contentItem);
             }
         }
+    }
+
+    // insert lang nodes and update titles
+    QMap<QString, QStandardItem*>::const_iterator i = langNodes.constBegin();
+    while (i != langNodes.constEnd()) {
+        QStandardItem *node = i.value();
+        allRoot->appendRow(node);
+        ui->treeViewSubtitles->expand(node->index());
+        node->setText(tr("%1 (%2 files)").arg(i.key()).arg(node->rowCount()));
+        ++i;
     }
 
     ui->treeViewSubtitles->expand(automaticRoot->index());
