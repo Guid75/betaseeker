@@ -16,6 +16,8 @@
 
 #include <QSqlRecord>
 #include <QSqlTableModel>
+#include <QColor>
+#include <QDateTime>
 
 #include "episodemodel.h"
 
@@ -26,13 +28,21 @@ SeasonListModel::SeasonListModel(QObject *parent) :
 
 QVariant SeasonListModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole)
-      return QIdentityProxyModel::data(index, role);
-
+    int secsFromEpoch;
     if (index.isValid() && index.column() == 0) {
         QSqlTableModel *m = qobject_cast<QSqlTableModel*>(sourceModel());
         QSqlRecord rec = m->record(index.row());
-        return tr("Episode %1 (%2)").arg(rec.value("episode").toInt()).arg(rec.value("title").toString());
+        switch (role) {
+        case Qt::DisplayRole:
+            return tr("Episode %1 (%2)").arg(rec.value("episode").toInt()).arg(rec.value("title").toString());
+        case Qt::ForegroundRole:
+            secsFromEpoch = rec.value("date").toInt();
+            if (QDateTime::currentMSecsSinceEpoch() / 1000 >= secsFromEpoch)
+                return QColor(Qt::black);
+            return QColor(Qt::gray);
+        default:
+            return QIdentityProxyModel::data(index, role);
+        }
     }
 
     return QVariant();

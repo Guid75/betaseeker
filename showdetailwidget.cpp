@@ -341,7 +341,6 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
             contentItem->setData(query.value("file"), Qt::UserRole + 4);
             contentItem->setData(query.value("quality"), Qt::UserRole + 5);
             items << contentItem;
-//            langNode->appendRow(contentItem);
         } else {
             QString caption;
             if (children.count() > 0)
@@ -355,7 +354,6 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
             subtitleItem->setData(query.value("quality"), Qt::UserRole + 5);
             subtitleItem->setEditable(false);
             items << subtitleItem;
-//            langNode->appendRow(subtitleItem);
             foreach (QStandardItem *contentItem, children) {
                 subtitleItem->appendRow(contentItem);
             }
