@@ -448,6 +448,9 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
         qCritical("Cannot remove %s", qPrintable(filePath));
         return;
     }
+
+    // open the show dir
+    QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(QFileInfo(filePath).absolutePath()) , QUrl::TolerantMode));
 }
 
 void ShowDetailWidget::linkClicked(const QModelIndex &index)
