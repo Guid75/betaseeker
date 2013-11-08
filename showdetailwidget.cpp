@@ -176,6 +176,11 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
         return;
     }
 
+    if (!QSqlDatabase::database().transaction()) {
+        qCritical("Error while beginning a transaction for SQL insertion");
+        return;
+    }
+
     // remove all subtitles for an episode
     QSqlQuery query;
     query.prepare("DELETE FROM subtitle WHERE show_id=:show_id AND season=:season AND episode=:episode");
@@ -250,6 +255,8 @@ void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
     query.bindValue(":season", _season);
     query.bindValue(":episode", episode);
     query.exec();
+
+    QSqlDatabase::database().commit();
 }
 
 bool ShowDetailWidget::eventFilter(QObject *watched, QEvent *event)
