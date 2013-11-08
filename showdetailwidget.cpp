@@ -103,7 +103,12 @@ void ShowDetailWidget::init(const QString &showId, int season)
     episodeModel->setFilter(QString("show_id='%1' AND season=%2").arg(_showId).arg(_season));
     episodeModel->select();
 
-    ui->widgetSeasonDir->setVisible(Settings::directoryForSeason(_showId, _season).isEmpty());
+    QString dir = Settings::directoryForSeason(_showId, _season);
+    if (!dir.isEmpty() && !QFileInfo(dir).exists())
+        ui->labelNoDirSpecified->setText(tr("The previously specified season directory does not exist anymore"));
+    else if (dir.isEmpty())
+        ui->labelNoDirSpecified->setText(tr("No directory specified for this season"));
+    ui->widgetSeasonDir->setVisible(dir.isEmpty() || !QFileInfo(dir).exists());
 }
 
 void ShowDetailWidget::on_pushButtonDefineIt_clicked()
@@ -464,7 +469,7 @@ void ShowDetailWidget::linkClicked(const QModelIndex &index)
 {
     // is there a reception directory for those subtitle(s)?
     QString dir = Settings::directoryForSeason(_showId, _season);
-    if (dir.isEmpty())
+    if (dir.isEmpty() || !QFileInfo(dir).exists())
         on_pushButtonDefineIt_clicked();
 
     QStandardItem *item = subtitleModel->itemFromIndex(index);
