@@ -98,11 +98,13 @@ void MainWindow::afterShow()
 	showListModel = new QSqlTableModel(this, QSqlDatabase::database());
 	showListModel->setTable("show");
 	showListModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-    showListModel->setSort(showListModel->fieldIndex("title"), Qt::AscendingOrder);
 	showListModel->select();
 	showListModel->setHeaderData(0, Qt::Horizontal, tr("Title"));
-	ui->listViewShows->setModel(showListModel);
-	ui->listViewShows->setModelColumn(showListModel->fieldIndex("title"));
+    showListProxyModel = new QSortFilterProxyModel(this);
+    showListProxyModel->setSourceModel(showListModel);
+    showListProxyModel->sort(0);
+    ui->listViewShows->setModel(showListProxyModel);
+    ui->listViewShows->setModelColumn(showListModel->fieldIndex("title"));
 	ui->listViewShows->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	connect(ui->listViewShows->selectionModel(), &QItemSelectionModel::selectionChanged,
@@ -117,7 +119,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 void MainWindow::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::WindowStateChange) {
-        QWindowStateChangeEvent *wsEvent = dynamic_cast<QWindowStateChangeEvent*>(event);
+/*        QWindowStateChangeEvent *wsEvent = dynamic_cast<QWindowStateChangeEvent*>(event);*/
         Settings::setMainWindowMaximized(windowState() == Qt::WindowMaximized);
     }
 }
@@ -165,7 +167,7 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	if (index.isValid()) {
 		// already exists, just focus it
 		ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
-		ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
+        ui->listViewShows->setCurrentIndex(showListProxyModel->mapFromSource(getIndexByShowId(id)));
 		return;
 	}
 
@@ -177,7 +179,7 @@ void MainWindow::on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item)
 	index = getIndexByShowId(id);
 	if (index.isValid()) {
 		ui->tabWidgetMain->setCurrentWidget(ui->tabShows);
-		ui->listViewShows->setCurrentIndex(getIndexByShowId(id));
+        ui->listViewShows->setCurrentIndex(showListProxyModel->mapFromSource(getIndexByShowId(id)));
     }
 }
 
@@ -193,7 +195,7 @@ void MainWindow::on_tabWidgetSeasons_currentChanged(int index)
 
 void MainWindow::on_pushButtonUnfollow_clicked()
 {
-    QModelIndex index = ui->listViewShows->currentIndex();
+    QModelIndex index = showListProxyModel->mapToSource(ui->listViewShows->currentIndex());
     if (!index.isValid())
         return;
 
@@ -238,7 +240,9 @@ void MainWindow::currentShowChanged(const QItemSelection &selected, const QItemS
 	if (selected.count() == 0)
 		return;
 
-	QSqlRecord record = showListModel->record(selected.indexes()[0].row());
+    QItemSelection sourceSelection = showListProxyModel->mapSelectionToSource(selected);
+
+    QSqlRecord record = showListModel->record(sourceSelection.indexes()[0].row());
 
     // TODO we must check is a request is running yet for the current show and show the loading box in this case
 
@@ -272,7 +276,7 @@ void MainWindow::refreshDone(const QString &url, Cache::Item item)
 
 QString MainWindow::getCurrentShowUrl() const
 {
-    QModelIndex index = ui->listViewShows->currentIndex();
+    QModelIndex index = showListProxyModel->mapToSource(ui->listViewShows->currentIndex());
     if (!index.isValid())
 		return QString();
 
@@ -305,7 +309,7 @@ void MainWindow::clearShowDetails()
 
 void MainWindow::refreshShowDetails()
 {
-    QModelIndex index = ui->listViewShows->currentIndex();
+    QModelIndex index = showListProxyModel->mapToSource(ui->listViewShows->currentIndex());
     if (!index.isValid())
         return;
 

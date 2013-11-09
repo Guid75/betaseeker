@@ -20,6 +20,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QSqlTableModel>
+#include <QSortFilterProxyModel>
 
 #include "showmanager.h"
 
@@ -57,6 +58,7 @@ private:
     int searchTicketId;
 	int searchTimerId;
     QSqlTableModel *showListModel;
+    QSortFilterProxyModel *showListProxyModel;
     bool ignoreCurrentPage;
 
 	void loadSettings();
