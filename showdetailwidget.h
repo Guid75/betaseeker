@@ -25,6 +25,7 @@ class SeasonWidget;
 class QSqlTableModel;
 class SeasonListModel;
 class QStandardItemModel;
+class EpisodeFinder;
 
 namespace Ui {
 class ShowDetailWidget;
@@ -52,7 +53,7 @@ private:
     QSqlTableModel *episodeModel;
     SeasonListModel *episodeProxyModel;
     QStandardItemModel *subtitleModel;
-    //QSqlTableModel *subtitleModel;
+    EpisodeFinder *episodeFinder;
     QMap<int, int> tickets;
 	int downloadTicket;
 
@@ -63,6 +64,9 @@ protected:
 
 private:
     void refreshSubtitleTree(int episode);
+    void refreshEpisodesComboBox();
+    void renameAccordingToCurrentVideoFile(const QString &filePath);
+    void findAndRename(const QString &filePath);
 
 private slots:
     void on_pushButtonDefineIt_clicked();

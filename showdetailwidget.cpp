@@ -36,6 +36,7 @@
 #include "loadingwidget.h"
 #include "subtitlemodel.h"
 #include "linkdelegate.h"
+#include "episodefinder.h"
 
 #include "ui_showdetailwidget.h"
 #include "showdetailwidget.h"
@@ -92,6 +93,8 @@ ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
             this, &ShowDetailWidget::commandFinished);
     connect(&DownloadManager::instance(), &DownloadManager::downloadFinished,
             this, &ShowDetailWidget::downloadFinished);
+
+    episodeFinder = new EpisodeFinder(this);
 }
 
 void ShowDetailWidget::init(const QString &showId, int season)
@@ -171,6 +174,8 @@ void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, con
     } else {
         refreshSubtitleTree(episode);
     }
+
+    refreshEpisodesComboBox();
 }
 
 void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
@@ -393,6 +398,73 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
     ui->treeViewSubtitles->expand(allRoot->index());
 }
 
+void ShowDetailWidget::refreshEpisodesComboBox()
+{
+    QModelIndex current = ui->listViewEpisodes->currentIndex();
+    if (!current.isValid())
+        return;
+
+    QSqlRecord record = episodeModel->record(current.row());
+    int episode = record.value("episode").toInt();
+    QString dir = Settings::directoryForSeason(_showId, _season);
+
+    ui->comboBoxSubtitles->clear();
+    QStringList episodeList;
+    if (!dir.isEmpty()) {
+        episodeList = episodeFinder->getEpisodes(dir, _season, episode);
+        foreach (const QString &file, episodeList)
+            ui->comboBoxSubtitles->addItem(QFileInfo(file).fileName(), file);
+    }
+
+    int count = ui->comboBoxSubtitles->count();
+
+    if (count == 0)
+        ui->comboBoxSubtitles->addItem(tr("<no proper episode video file found, you can manually select one by clicking me>"), "");
+
+    if (!dir.isEmpty()) {
+        QStringList episodes = episodeFinder->getEpisodes(dir);
+        if (episodes.count() > 0)
+            ui->comboBoxSubtitles->insertSeparator(count);
+        foreach (const QString &file, episodes) {
+            if (episodeList.indexOf(file) < 0)
+                ui->comboBoxSubtitles->addItem(QFileInfo(file).fileName(), file);
+        }
+    }
+    ui->comboBoxSubtitles->setCurrentIndex(0);
+}
+
+void ShowDetailWidget::renameAccordingToCurrentVideoFile(const QString &filePath)
+{
+    QString videoFilePath = ui->comboBoxSubtitles->itemData(ui->comboBoxSubtitles->currentIndex()).toString();
+
+    if (videoFilePath.isEmpty())
+        return;
+
+    QString subtitleExt = QFileInfo(filePath).suffix();
+    QFileInfo videoFileInfo(videoFilePath);
+    QString videoBaseName = videoFileInfo.completeBaseName();
+    QDir videoDir(videoFileInfo.absolutePath());
+    QString newSubtitlePath = videoDir.filePath(videoBaseName + "." + subtitleExt);
+
+    if (QFileInfo(newSubtitlePath).exists())
+        findAndRename(newSubtitlePath);
+
+    QFile::rename(filePath, newSubtitlePath);
+}
+
+void ShowDetailWidget::findAndRename(const QString &filePath)
+{
+    int i = 1;
+    while (true) {
+        QString suggested = QString("%1.backup.%2").arg(filePath).arg(i);
+        if (!QFileInfo(suggested).exists()) {
+            QFile::rename(filePath, suggested);
+            break;
+        }
+        i++;
+    }
+}
+
 void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
 {
     if (tickets.find(ticketId) == tickets.end())
@@ -415,6 +487,7 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
     QFileInfo fileInfo(filePath);
     if (fileInfo.suffix().compare("zip", Qt::CaseInsensitive) != 0) {
         // not a zip
+        renameAccordingToCurrentVideoFile(filePath);
         return;
     }
 
@@ -449,6 +522,8 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
         outFile.close();
 
         zipFile.close();
+        if (!onlyFilePath.isEmpty())
+            renameAccordingToCurrentVideoFile(dir.filePath(quazip.getCurrentFileName()));
     }
 
     quazip.close();
