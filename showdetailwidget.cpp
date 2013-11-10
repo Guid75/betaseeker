@@ -450,6 +450,7 @@ void ShowDetailWidget::renameAccordingToCurrentVideoFile(const QString &filePath
         findAndRename(newSubtitlePath);
 
     QFile::rename(filePath, newSubtitlePath);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
 }
 
 void ShowDetailWidget::findAndRename(const QString &filePath)
@@ -537,7 +538,7 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
     }
 
     // open the show dir
-    QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(QFileInfo(filePath).absolutePath()) , QUrl::TolerantMode));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
 }
 
 void ShowDetailWidget::linkClicked(const QModelIndex &index)
