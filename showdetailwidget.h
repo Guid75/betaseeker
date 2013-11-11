@@ -66,7 +66,9 @@ private:
     void refreshSubtitleTree(int episode);
     void refreshEpisodesComboBox();
     void renameAccordingToCurrentVideoFile(const QString &filePath);
-    void findAndRename(const QString &filePath);
+    void findExistingAndRenameIt(const QString &filePath);
+
+    QByteArray getFileHash(const QString &fileName) const;
 
 private slots:
     void on_pushButtonDefineIt_clicked();

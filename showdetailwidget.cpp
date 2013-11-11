@@ -24,6 +24,7 @@
 #include <QUrl>
 #include <QRegularExpression>
 #include <QStandardItemModel>
+#include <QCryptographicHash>
 
 #include <quazip.h>
 #include <quazipfile.h>
@@ -446,24 +447,66 @@ void ShowDetailWidget::renameAccordingToCurrentVideoFile(const QString &filePath
     QDir videoDir(videoFileInfo.absolutePath());
     QString newSubtitlePath = videoDir.filePath(videoBaseName + "." + subtitleExt);
 
-    if (QFileInfo(newSubtitlePath).exists())
-        findAndRename(newSubtitlePath);
+    if (newSubtitlePath == filePath) {
+        // by chance, the subtitle file has already the good name
+        return;
+    }
+
+    if (QFileInfo(newSubtitlePath).exists()) {
+        QByteArray fileHash = getFileHash(filePath);
+        QByteArray newFileHash = getFileHash(newSubtitlePath);
+        if (fileHash.isNull() || newFileHash.isNull())
+            return;
+
+        if (fileHash == newFileHash) {
+            QFile(filePath).remove();
+            QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
+            return;
+        }
+
+        findExistingAndRenameIt(newSubtitlePath);
+    }
 
     QFile::rename(filePath, newSubtitlePath);
     QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
 }
 
-void ShowDetailWidget::findAndRename(const QString &filePath)
+void ShowDetailWidget::findExistingAndRenameIt(const QString &filePath)
 {
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists())
+        return;
+
+    QString suffix = fileInfo.suffix();
+    QString absoluteBaseName = QDir(fileInfo.absolutePath()).filePath(fileInfo.completeBaseName());
+
+    // try to find a free name
     int i = 1;
     while (true) {
-        QString suggested = QString("%1.backup.%2").arg(filePath).arg(i);
+        QString suggested = QString("%1.backup-%2.%3").arg(absoluteBaseName).arg(i).arg(suffix);
         if (!QFileInfo(suggested).exists()) {
-            QFile::rename(filePath, suggested);
+            qDebug("suggested: %s", qPrintable(suggested));
+            if (!QFile::rename(filePath, suggested))
+                qDebug("renamed !");
             break;
         }
         i++;
     }
+}
+
+QByteArray ShowDetailWidget::getFileHash(const QString &fileName) const
+{
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCritical("ShowDetailWidget::getFileHash(): Cannot open %s", qPrintable(fileName));
+        return QByteArray();
+    }
+    hash.addData(&file);
+    QByteArray fileHash = hash.result();
+    file.close();
+
+    return fileHash;
 }
 
 void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
@@ -509,6 +552,7 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
         if (!onlyFilePath.isEmpty() && quazip.getCurrentFileName() != onlyFilePath)
             continue;
 
+        findExistingAndRenameIt(dir.filePath(quazip.getCurrentFileName()));
         QFile outFile(dir.filePath(quazip.getCurrentFileName()));
         outFile.open(QFile::WriteOnly);
 
