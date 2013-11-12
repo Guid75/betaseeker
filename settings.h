@@ -24,6 +24,9 @@ namespace Settings {
 
 QString directoryForSeason(const QString &showId, int season);
 void setDirectoryForSeason(const QString &showId, int season, const QString &filePath);
+//! \brief remove a directory about a show season
+void clearDirectoryForSeason(const QString &showId, int season);
+void clearShow(const QString &showId);
 QSize mainWindowSize();
 void setMainWindowSize(const QSize &size);
 bool mainWindowMaximized();

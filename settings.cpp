@@ -38,6 +38,20 @@ void setDirectoryForSeason(const QString &showId, int season, const QString &fil
     settings.setValue(QString("shows/%1/season%2/filepath").arg(showId).arg(season), filePath);
 }
 
+void clearDirectoryForSeason(const QString &showId, int season = -1)
+{
+    DEFINE_SETTINGS;
+
+    settings.remove(QString("shows/%1/season%2/filepath").arg(showId).arg(season));
+}
+
+void clearShow(const QString &showId)
+{
+    DEFINE_SETTINGS;
+
+    settings.remove(QString("shows/%1").arg(showId));
+}
+
 QSize mainWindowSize()
 {
     DEFINE_SETTINGS;

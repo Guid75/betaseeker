@@ -204,9 +204,6 @@ void MainWindow::on_pushButtonUnfollow_clicked()
 
     // remove all records from all tables which a certain show_id
     QSqlQuery query;
- /*   query.prepare("DELETE FROM show WHERE show_id=:show_id");
-    query.bindValue(":show_id", showId);
-    query.exec();*/
 
     query.prepare("DELETE FROM season WHERE show_id=:show_id");
     query.bindValue(":show_id", showId);
@@ -220,11 +217,14 @@ void MainWindow::on_pushButtonUnfollow_clicked()
     query.bindValue(":show_id", showId);
     query.exec();
 
-    // finally, remove from the model itself
+    // remove from the model itself
     if (showListModel->removeRows(index.row(), 1)) {
         showListModel->select();
         clearShowDetails();
     }
+
+    // remove the settings about the show
+    Settings::clearShow(showId);
 
     // TODO manage error of removeRows
 }

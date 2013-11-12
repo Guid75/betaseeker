@@ -311,17 +311,8 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         return;
     }
 
-    QStandardItem *parentItem = subtitleModel->invisibleRootItem();
-    parentItem->removeRows(0, parentItem->rowCount());
-
-    // TODO : no need to display this node if no movie is selected
-    QStandardItem *automaticRoot = new QStandardItem(tr("Subtitles matching the selected movie filename"));
-    automaticRoot->setEditable(false);
-    parentItem->appendRow(automaticRoot);
-
-    QStandardItem *allRoot = new QStandardItem(tr("All subtitles for Episode %1 (%2)").arg(epRecord.value("episode").toInt()).arg(epRecord.value("title").toString()));
-    allRoot->setEditable(false);
-    parentItem->appendRow(allRoot);
+    QStandardItem *rootNode = subtitleModel->invisibleRootItem();
+    rootNode->removeRows(0, rootNode->rowCount());
 
     QMap<QString,QStandardItem*> langNodes;
     QMap<QString,QList<QStandardItem*> > langItems;
@@ -389,14 +380,13 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         foreach (QStandardItem *item, items)
             node->appendRow(item);
 
-        allRoot->appendRow(node);
+        rootNode->appendRow(node);
         ui->treeViewSubtitles->expand(node->index());
         node->setText(tr("%1 (%2 files)").arg(i.key()).arg(node->rowCount()));
         ++i;
     }
 
-    ui->treeViewSubtitles->expand(automaticRoot->index());
-    ui->treeViewSubtitles->expand(allRoot->index());
+/*    ui->treeViewSubtitles->expand(allRoot->index());*/
 }
 
 void ShowDetailWidget::refreshEpisodesComboBox()
