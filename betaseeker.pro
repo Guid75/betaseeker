@@ -12,7 +12,7 @@ TARGET = betaseeker
 TEMPLATE = app
 
 DEFINES += QUAZIP_STATIC
-
+win32:DEFINES += ZLIB_WINAPI
 
 SOURCES += main.cpp\
     mainwindow.cpp \
@@ -59,7 +59,9 @@ RESOURCES += \
 INCLUDEPATH += $$PWD/../quazip-0.5.1/quazip
 DEPENDPATH += $$PWD/../quazip-0.5.1/quazip
 
-win32:LIBS += -L $$PWD/../build-quazip-Desktop_Qt_5_1_0_MinGW_32bit-Release/quazip/release -lquazip -lz
+win32:INCLUDEPATH += $$PWD/../zlib-1.2.8
+# win32:LIBS += -L$$PWD/../build-quazip-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Release/quazip/release -lquazip -lz
+win32:LIBS += -L$$PWD/../build-quazip-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Release/quazip/release -lquazip -L$$PWD/../zlib-1.2.8/contrib/vstudio/vc11/x64/ZlibDllRelease -lzlibwapi
 
 unix:!macx: LIBS += -L$$PWD/../build-quazip-Desktop_Qt_5_1_0_MinGW_32bit-Release/quazip/ -lquazip -lz
 unix:!macx: PRE_TARGETDEPS += $$PWD/../build-quazip-Desktop_Qt_5_1_0_MinGW_32bit-Release/quazip/libquazip.a

@@ -26,6 +26,7 @@ class QSqlTableModel;
 class SeasonListModel;
 class QStandardItemModel;
 class EpisodeFinder;
+class QStandardItem;
 
 namespace Ui {
 class ShowDetailWidget;
@@ -43,9 +44,13 @@ signals:
 
 public slots:
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event);
+
 private:
 	QString _showId;
 	int _season;
+    int _episode;
     Ui::ShowDetailWidget *ui;
     int subtitleTicket;
     SubtitlesModel *subtitlesModel;
@@ -56,19 +61,19 @@ private:
     EpisodeFinder *episodeFinder;
     QMap<int, int> tickets;
 	int downloadTicket;
+    QStandardItem *localRoot;
 
     void parseSubtitles(int episode, const QByteArray &response);
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event);
-
-private:
     void refreshSubtitleTree(int episode);
     void refreshEpisodesComboBox();
     void renameAccordingToCurrentVideoFile(const QString &filePath);
     void findExistingAndRenameIt(const QString &filePath);
+    static QString replaceExtension(const QString &fileName, const QString &newExtension);
+    QString getComboBoxFile() const;
 
     QByteArray getFileHash(const QString &fileName) const;
+
+    void refreshLocalSubtitles();
 
 private slots:
     void on_pushButtonDefineIt_clicked();

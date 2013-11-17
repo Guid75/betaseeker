@@ -44,6 +44,7 @@ private slots:
 	void on_listWidgetSearch_itemDoubleClicked(QListWidgetItem *item);
     void on_tabWidgetSeasons_currentChanged(int index);
     void on_pushButtonUnfollow_clicked();
+    void on_pushButtonRefresh_clicked();
 
     void commandFinished(int ticketId, const QByteArray &response);
 	void currentShowChanged(const QItemSelection &selected, const QItemSelection &);

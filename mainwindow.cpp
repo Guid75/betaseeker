@@ -229,6 +229,10 @@ void MainWindow::on_pushButtonUnfollow_clicked()
     // TODO manage error of removeRows
 }
 
+void MainWindow::on_pushButtonRefresh_clicked()
+{
+}
+
 void MainWindow::commandFinished(int ticketId, const QByteArray &response)
 {
 	if (ticketId == searchTicketId)

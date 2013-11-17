@@ -51,6 +51,8 @@ namespace {
 ShowDetailWidget::ShowDetailWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ShowDetailWidget),
+    _season(-1),
+    _episode(-1),
     downloadTicket(-1)
 {
 
@@ -149,11 +151,15 @@ void ShowDetailWidget::on_toolButtonRefreshSubtitles_clicked()
 
 void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &)
 {
-    if (selected.count() == 0)
+    if (selected.count() == 0) {
+        _episode = -1;
         return;
+    }
 
     QSqlRecord record = episodeModel->record(selected.indexes()[0].row());
-    int episode = record.value("episode").toInt();
+    _episode = record.value("episode").toInt();
+
+    refreshEpisodesComboBox();
 
     QSqlQuery query;
     qint64 last_check_epoch = 0;
@@ -162,21 +168,19 @@ void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, con
     query.prepare("SELECT subtitles_last_check_date FROM episode WHERE show_id=:show_id AND season=:season AND episode=:episode");
     query.bindValue(":show_id", _showId);
     query.bindValue(":season", _season);
-    query.bindValue(":episode", episode);
+    query.bindValue(":episode", _episode);
     query.exec();
     if (query.next() && !query.value(0).isNull()) {
         last_check_epoch = query.value(0).toLongLong() * 1000;
     }
     if (QDateTime::currentDateTime().toMSecsSinceEpoch() - last_check_epoch > expiration) {
         // expired data, we need to launch the request
-        int ticket = CommandManager::instance().subtitlesShow(_showId, _season, episode);
-        tickets.insert(ticket, episode);
+        int ticket = CommandManager::instance().subtitlesShow(_showId, _season, _episode);
+        tickets.insert(ticket, _episode);
         LoadingWidget::showLoadingMask(ui->treeViewSubtitles);
     } else {
-        refreshSubtitleTree(episode);
+        refreshSubtitleTree(_episode);
     }
-
-    refreshEpisodesComboBox();
 }
 
 void ShowDetailWidget::parseSubtitles(int episode, const QByteArray &response)
@@ -322,6 +326,7 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         QStandardItem *langNode = langNodes[lang];
         if (!langNode) {
             langNode = new QStandardItem(lang);
+            langNode->setEditable(false);
             langNodes.insert(lang, langNode);
             langItems.insert(lang, QList<QStandardItem*>());
         }
@@ -369,6 +374,13 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         }
     }
 
+    // local subtitles?
+    localRoot = new QStandardItem(tr("Local subtitles"));
+    localRoot->setEditable(false);
+    rootNode->appendRow(localRoot);
+    ui->treeViewSubtitles->expand(localRoot->index());
+    refreshLocalSubtitles();
+
     // insert lang nodes and update titles
     QMap<QString, QStandardItem*>::const_iterator i = langNodes.constBegin();
     while (i != langNodes.constEnd()) {
@@ -385,8 +397,6 @@ void ShowDetailWidget::refreshSubtitleTree(int episode)
         node->setText(tr("%1 (%2 files)").arg(i.key()).arg(node->rowCount()));
         ++i;
     }
-
-/*    ui->treeViewSubtitles->expand(allRoot->index());*/
 }
 
 void ShowDetailWidget::refreshEpisodesComboBox()
@@ -399,43 +409,42 @@ void ShowDetailWidget::refreshEpisodesComboBox()
     int episode = record.value("episode").toInt();
     QString dir = Settings::directoryForSeason(_showId, _season);
 
-    ui->comboBoxSubtitles->clear();
+    ui->comboBoxVideos->clear();
     QStringList episodeList;
     if (!dir.isEmpty()) {
         episodeList = episodeFinder->getEpisodes(dir, _season, episode);
         foreach (const QString &file, episodeList)
-            ui->comboBoxSubtitles->addItem(QFileInfo(file).fileName(), file);
+            ui->comboBoxVideos->addItem(QFileInfo(file).fileName(), file);
     }
 
-    int count = ui->comboBoxSubtitles->count();
+    int count = ui->comboBoxVideos->count();
 
     if (count == 0)
-        ui->comboBoxSubtitles->addItem(tr("<no proper episode video file found, you can manually select one by clicking me>"), "");
+        ui->comboBoxVideos->addItem(tr("<no proper episode video file found, you can manually select one by clicking me>"), "");
 
     if (!dir.isEmpty()) {
         QStringList episodes = episodeFinder->getEpisodes(dir);
         if (episodes.count() > 0)
-            ui->comboBoxSubtitles->insertSeparator(count);
+            ui->comboBoxVideos->insertSeparator(count);
         foreach (const QString &file, episodes) {
             if (episodeList.indexOf(file) < 0)
-                ui->comboBoxSubtitles->addItem(QFileInfo(file).fileName(), file);
+                ui->comboBoxVideos->addItem(QFileInfo(file).fileName(), file);
         }
     }
-    ui->comboBoxSubtitles->setCurrentIndex(0);
+    ui->comboBoxVideos->setCurrentIndex(0);
+/*    QString fileName = ui->comboBoxVideos->itemData(ui->comboBoxVideos->currentIndex()).toString();
+    font.setBold(!fileName.isEmpty() && QFileInfo(replaceExtension(fileName, "srt")).exists());
+    ui->comboBoxVideos->setFont(font);*/
 }
 
 void ShowDetailWidget::renameAccordingToCurrentVideoFile(const QString &filePath)
 {
-    QString videoFilePath = ui->comboBoxSubtitles->itemData(ui->comboBoxSubtitles->currentIndex()).toString();
+    QString videoFilePath = getComboBoxFile();
 
     if (videoFilePath.isEmpty())
         return;
 
-    QString subtitleExt = QFileInfo(filePath).suffix();
-    QFileInfo videoFileInfo(videoFilePath);
-    QString videoBaseName = videoFileInfo.completeBaseName();
-    QDir videoDir(videoFileInfo.absolutePath());
-    QString newSubtitlePath = videoDir.filePath(videoBaseName + "." + subtitleExt);
+    QString newSubtitlePath = replaceExtension(videoFilePath, QFileInfo(filePath).suffix());
 
     if (newSubtitlePath == filePath) {
         // by chance, the subtitle file has already the good name
@@ -450,7 +459,7 @@ void ShowDetailWidget::renameAccordingToCurrentVideoFile(const QString &filePath
 
         if (fileHash == newFileHash) {
             QFile(filePath).remove();
-            QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
+//            QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
             return;
         }
 
@@ -458,7 +467,7 @@ void ShowDetailWidget::renameAccordingToCurrentVideoFile(const QString &filePath
     }
 
     QFile::rename(filePath, newSubtitlePath);
-    QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
+//    QDesktopServices::openUrl(QUrl::fromLocalFile(videoFilePath));
 }
 
 void ShowDetailWidget::findExistingAndRenameIt(const QString &filePath)
@@ -484,6 +493,12 @@ void ShowDetailWidget::findExistingAndRenameIt(const QString &filePath)
     }
 }
 
+QString ShowDetailWidget::replaceExtension(const QString &fileName, const QString &newExtension)
+{
+    QFileInfo fileInfo(fileName);
+    return QDir(fileInfo.absolutePath()).filePath(fileInfo.completeBaseName() + "." + newExtension);
+}
+
 QByteArray ShowDetailWidget::getFileHash(const QString &fileName) const
 {
     QCryptographicHash hash(QCryptographicHash::Sha256);
@@ -497,6 +512,37 @@ QByteArray ShowDetailWidget::getFileHash(const QString &fileName) const
     file.close();
 
     return fileHash;
+}
+
+QString ShowDetailWidget::getComboBoxFile() const
+{
+    return ui->comboBoxVideos->itemData(ui->comboBoxVideos->currentIndex()).toString();
+}
+
+void ShowDetailWidget::refreshLocalSubtitles()
+{
+    localRoot->removeRows(0, localRoot->rowCount());
+
+    QString dir = Settings::directoryForSeason(_showId, _season);
+    if (dir.isEmpty() || !QFileInfo(dir).exists())
+        return;
+
+    QString videoBaseName = QFileInfo(getComboBoxFile()).completeBaseName();
+    foreach (const QString &file, episodeFinder->getSubtitles(dir, _season, _episode)) {
+        QStandardItem *item = new QStandardItem(QFileInfo(file).fileName());
+
+        if (!videoBaseName.isEmpty() && videoBaseName == QFileInfo(file).completeBaseName()) {
+            QFont font = item->font();
+            font.setBold(true);
+            item->setFont(font);
+        } else {
+            qDebug(qPrintable(videoBaseName));
+            qDebug("***");
+            qDebug(qPrintable(QFileInfo(file).completeBaseName()));
+        }
+
+        localRoot->appendRow(item);
+    }
 }
 
 void ShowDetailWidget::commandFinished(int ticketId, const QByteArray &response)
@@ -522,6 +568,12 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
     if (fileInfo.suffix().compare("zip", Qt::CaseInsensitive) != 0) {
         // not a zip
         renameAccordingToCurrentVideoFile(filePath);
+        // refresh the local subtitle node
+        refreshLocalSubtitles();
+
+        // open the show dir
+        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
+
         return;
     }
 
@@ -570,6 +622,9 @@ void ShowDetailWidget::downloadFinished(int ticketId, const QString &filePath, c
         qCritical("Cannot remove %s", qPrintable(filePath));
         return;
     }
+
+    // refresh the local subtitle node
+    refreshLocalSubtitles();
 
     // open the show dir
     QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
