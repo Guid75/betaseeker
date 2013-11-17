@@ -9,5 +9,6 @@
         <file>resources/icon-expand.png</file>
         <file>resources/icons/right_arrow.png</file>
         <file>resources/icons/left_arrow.png</file>
+        <file>resources/icons/icon-movieplayer-48.png</file>
     </qresource>
 </RCC>

@@ -149,6 +149,15 @@ void ShowDetailWidget::on_toolButtonRefreshSubtitles_clicked()
     LoadingWidget::showLoadingMask(ui->treeViewSubtitles);
 }
 
+void ShowDetailWidget::on_toolButtonPlay_clicked()
+{
+    QString file = getComboBoxFile();
+    if (file.isEmpty())
+        return;
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(file));
+}
+
 void ShowDetailWidget::currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &)
 {
     if (selected.count() == 0) {

@@ -79,6 +79,7 @@ private slots:
     void on_pushButtonDefineIt_clicked();
     void on_pushButtonForgetIt_clicked();
     void on_toolButtonRefreshSubtitles_clicked();
+    void on_toolButtonPlay_clicked();
 
     void currentEpisodeChanged(const QItemSelection &selected, const QItemSelection &);
     void commandFinished(int ticketId, const QByteArray &response);
